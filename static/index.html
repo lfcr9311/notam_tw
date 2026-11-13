@@ -9,177 +9,71 @@
 <style>
   :root {
     color-scheme: light;
-    --bg: #eef2f7; --surface: #ffffff; --surface-2: #f6f8fb; --sunken: #e9eef5;
-    --text: #0e1726; --text-2: #4a5568; --muted: #7d8899;
-    --line: #e1e7ef; --grid: #edf1f6;
-    --accent: #0a4ea2; --accent-2: #1565c8; --accent-fg: #ffffff;
-    --hero-1: #0a3f86; --hero-2: #1667c9;
+    --bg: #f3f5f8; --surface: #ffffff; --surface-2: #f7f8fa;
+    --text: #0f1720; --text-2: #4a5563; --muted: #7b8594;
+    --line: #e4e8ee; --grid: #eef1f5; --accent: #0a4ea2; --rain: #2a78d6;
     --err-bg: #fde8e8; --err-fg: #8a1c1c;
-    --c-light: #8fc0f5; --c-rain: #3a86e0; --c-heavy: #0b3f8f; --c-wet: #e59a1c; --c-hot: #d9472b;
     --b-light: #e3effc; --b-light-fg: #1d5fa8;
-    --b-rain: #cfe2fb; --b-rain-fg: #0f4489;
-    --b-heavy: #0b3f8f; --b-heavy-fg: #ffffff;
+    --b-rain: #c9defa; --b-rain-fg: #0f4489;
+    --b-heavy: #1f5fbf; --b-heavy-fg: #ffffff;
     --b-wet: #fff1d6; --b-wet-fg: #8a5300;
     --b-hot: #fde2dc; --b-hot-fg: #a42a12;
-    --shadow: 0 1px 2px rgba(14, 23, 38, .05), 0 4px 16px rgba(14, 23, 38, .05);
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
       color-scheme: dark;
-      --bg: #0b0f15; --surface: #141a22; --surface-2: #19202a; --sunken: #0f141b;
-      --text: #eef2f7; --text-2: #b4bfcd; --muted: #808c9d;
-      --line: #252d39; --grid: #1e2530;
-      --accent: #3d8bea; --accent-2: #5a9ef0; --accent-fg: #07101d;
-      --hero-1: #0c2b55; --hero-2: #12417f;
+      --bg: #0d1117; --surface: #161b22; --surface-2: #1c222b;
+      --text: #eef1f5; --text-2: #b7c0cc; --muted: #8590a0;
+      --line: #2a313c; --grid: #222934; --accent: #3987e5; --rain: #3987e5;
       --err-bg: #3a1616; --err-fg: #f3a5a5;
-      --c-light: #2f5d92; --c-rain: #4b93ea; --c-heavy: #a9cdfa; --c-wet: #f0b04a; --c-hot: #f2795f;
       --b-light: #16283f; --b-light-fg: #9cc4f2;
       --b-rain: #1d3a5f; --b-rain-fg: #c4dcfa;
-      --b-heavy: #a9cdfa; --b-heavy-fg: #07101d;
+      --b-heavy: #3987e5; --b-heavy-fg: #0d1117;
       --b-wet: #3a2a0e; --b-wet-fg: #f5c46b;
       --b-hot: #3d1a13; --b-hot-fg: #f7a28f;
-      --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 16px rgba(0, 0, 0, .25);
     }
   }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.45 Inter, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
-  main { max-width: 980px; margin: 0 auto; padding: 0 16px 56px; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.45 Inter, system-ui, sans-serif; }
+  main { max-width: 900px; margin: 0 auto; padding: 28px 16px 48px; }
+  h1 { font-size: 1.5rem; margin: 0 0 16px; }
+  h1 span { color: var(--accent); }
 
-  /* Topo */
-  .hero { background: linear-gradient(135deg, var(--hero-1), var(--hero-2)); color: #fff; padding: 28px 0 64px; }
-  .hero-in { max-width: 980px; margin: 0 auto; padding: 0 16px; display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
-  .brand { display: flex; align-items: center; gap: 12px; }
-  .logo { width: 40px; height: 40px; border-radius: 12px; background: rgba(255,255,255,.14); display: grid; place-items: center; }
-  .brand h1 { font-size: 1.35rem; margin: 0; letter-spacing: -.01em; }
-  .brand p { margin: 2px 0 0; font-size: .85rem; opacity: .78; }
-  .hint { font-size: .8rem; opacity: .7; }
+  .toolbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+  select { font: inherit; font-weight: 500; color: var(--text); background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; min-width: 170px; cursor: pointer; }
+  button { border: 0; background: var(--accent); color: #fff; font: inherit; font-weight: 600; padding: 9px 18px; border-radius: 10px; cursor: pointer; }
+  button:disabled { opacity: .6; cursor: wait; }
+  .err { background: var(--err-bg); color: var(--err-fg); padding: 12px 14px; border-radius: 10px; margin-bottom: 16px; }
 
-  /* Painel de controle */
-  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); padding: 16px; margin-top: -40px; position: relative; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-  .panel-label { font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); width: 100%; }
-  .bases { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
-  .bases input { position: absolute; opacity: 0; pointer-events: none; }
-  .bases label { padding: 9px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-2); color: var(--text-2); font-weight: 500; cursor: pointer; transition: background .15s, color .15s, border-color .15s; user-select: none; }
-  .bases label:hover { border-color: var(--accent); color: var(--text); }
-  .bases input:checked + label { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
-  .bases input:focus-visible + label { outline: 2px solid var(--accent); outline-offset: 2px; }
-  button { border: 0; background: var(--accent); color: var(--accent-fg); font: inherit; font-weight: 600; padding: 10px 20px; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: background .15s; }
-  button:hover { background: var(--accent-2); }
-  button:disabled { opacity: .65; cursor: wait; }
-  .spin { width: 14px; height: 14px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  .err { background: var(--err-bg); color: var(--err-fg); padding: 14px 16px; border-radius: 12px; margin-top: 20px; }
-  .placeholder { text-align: center; color: var(--muted); padding: 56px 16px; }
-  .placeholder svg { opacity: .5; margin-bottom: 8px; }
-
-  /* Resumo */
-  .head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; margin: 28px 0 12px; }
-  .head h2 { margin: 0; font-size: 1.2rem; }
-  .head span { color: var(--muted); font-size: .85rem; }
-  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
-  .stat { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px; box-shadow: var(--shadow); position: relative; overflow: hidden; }
-  .stat::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 4px; background: var(--c); }
-  .stat.zero { box-shadow: none; background: var(--surface-2); }
-  .stat.zero::before { background: var(--line); }
-  .stat-label { font-size: .78rem; font-weight: 600; color: var(--text-2); }
-  .stat-value { font-size: 1.6rem; font-weight: 700; letter-spacing: -.02em; margin-top: 2px; font-variant-numeric: tabular-nums; }
-  .stat-value small { font-size: .85rem; font-weight: 500; color: var(--muted); margin-left: 2px; }
-  .stat.zero .stat-value { color: var(--muted); }
-  .stat-next { font-size: .75rem; color: var(--muted); margin-top: 2px; }
-
-  .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: .78rem; color: var(--text-2); margin: 18px 0 4px; }
-  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
-
-  /* Dias */
-  .day { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); margin-top: 14px; overflow: hidden; }
-  .day-head { padding: 14px 16px 12px; display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
-  .day-head h3 { margin: 0; font-size: 1rem; text-transform: capitalize; }
-  .day-head span { color: var(--muted); font-size: .82rem; }
-
-  .strip { display: grid; grid-template-columns: repeat(24, 1fr); gap: 2px; padding: 0 16px; }
-  .strip div { height: 22px; border-radius: 4px; background: var(--sunken); position: relative; }
-  .strip div.na { background: repeating-linear-gradient(45deg, transparent 0 3px, var(--grid) 3px 5px); }
-  .strip div.light { background: var(--c-light); }
-  .strip div.rain  { background: var(--c-rain); }
-  .strip div.heavy { background: var(--c-heavy); }
-  .strip div.hot::after { content: ""; position: absolute; left: 0; right: 0; bottom: -5px; height: 3px; border-radius: 2px; background: var(--c-hot); }
-  .strip-axis { display: grid; grid-template-columns: repeat(24, 1fr); gap: 2px; padding: 8px 16px 12px; font-size: .68rem; color: var(--muted); font-variant-numeric: tabular-nums; }
-  .strip-axis span:nth-child(6n+1) { visibility: visible; }
-  .strip-axis span { visibility: hidden; }
-
-  .rows { border-top: 1px solid var(--grid); }
-  .row { display: grid; grid-template-columns: 64px 1fr 84px 130px; gap: 12px; align-items: center; padding: 10px 16px; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; }
-  .row:last-child { border-bottom: 0; }
-  .row-time { font-weight: 600; }
-  .row-temp { text-align: right; color: var(--text-2); }
-  .row-temp.hot { color: var(--b-hot-fg); font-weight: 700; }
-  .prob { display: flex; align-items: center; gap: 8px; justify-content: flex-end; color: var(--text-2); font-size: .85rem; }
-  .bar { width: 64px; height: 6px; border-radius: 3px; background: var(--sunken); overflow: hidden; }
-  .bar b { display: block; height: 100%; background: var(--c-rain); border-radius: 3px; }
-  .cols { display: grid; grid-template-columns: 64px 1fr 84px 130px; gap: 12px; padding: 8px 16px; font-size: .68rem; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); background: var(--surface-2); border-top: 1px solid var(--grid); }
-  .cols span:nth-child(3), .cols span:nth-child(4) { text-align: right; }
-
-  .tags { display: flex; flex-wrap: wrap; gap: 4px; }
-  .tag { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px; font-size: .75rem; font-weight: 600; white-space: nowrap; }
+  .wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+  table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: .9rem; }
+  th, td { padding: 9px 14px; text-align: right; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; }
+  th { position: sticky; top: 0; background: var(--surface); color: var(--muted); font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
+  tr.rain td { background: color-mix(in srgb, var(--rain) 9%, transparent); }
+  tr.rain td:first-child { box-shadow: inset 3px 0 var(--rain); }
+  td.cond { text-align: left; }
+  .tag { display: inline-block; padding: 2px 8px; margin: 1px 4px 1px 0; border-radius: 999px; font-size: .75rem; font-weight: 600; }
   .tag.light { background: var(--b-light); color: var(--b-light-fg); }
   .tag.rain  { background: var(--b-rain);  color: var(--b-rain-fg); }
   .tag.heavy { background: var(--b-heavy); color: var(--b-heavy-fg); }
   .tag.wet   { background: var(--b-wet);   color: var(--b-wet-fg); }
   .tag.hot   { background: var(--b-hot);   color: var(--b-hot-fg); }
-
-  .empty { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 28px 16px; color: var(--text-2); text-align: center; margin-top: 14px; }
-
-  .skeleton { height: 120px; border-radius: 16px; margin-top: 14px; background: linear-gradient(90deg, var(--surface) 0%, var(--surface-2) 50%, var(--surface) 100%); background-size: 200% 100%; animation: shimmer 1.2s infinite; border: 1px solid var(--line); }
-  @keyframes shimmer { to { background-position: -200% 0; } }
-
-  @media (max-width: 640px) {
-    .cols { display: none; }
-    .row { grid-template-columns: 52px 1fr auto; grid-template-areas: "time temp prob" "tags tags tags"; row-gap: 8px; }
-    .row-time { grid-area: time; } .row-temp { grid-area: temp; } .prob { grid-area: prob; } .tags { grid-area: tags; }
-    .bar { width: 44px; }
-    .strip { gap: 1px; } .strip div { height: 18px; border-radius: 3px; }
-    .strip-axis span:nth-child(6n+1) { visibility: hidden; }
-    .strip-axis span:nth-child(12n+1) { visibility: visible; }
-    .bases { flex-basis: 100%; }
-    button { flex: 1; justify-content: center; }
-  }
-  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+  td.hot { color: var(--b-hot-fg); font-weight: 600; }
+  .empty { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; color: var(--text-2); }
+  tr.day td { background: var(--surface-2); color: var(--text-2); font-weight: 600; font-size: .8rem; }
 </style>
 </head>
 <body>
-<header class="hero">
-  <div class="hero-in">
-    <div class="brand">
-      <div class="logo">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M17.5 17H7a5 5 0 1 1 1.6-9.74A6 6 0 0 1 20 10.5 3.5 3.5 0 0 1 17.5 17Z"/>
-          <path d="M8 20l-1 2M12 20l-1 2M16 20l-1 2"/>
-        </svg>
-      </div>
-      <div>
-        <h1>NOTAM TW</h1>
-        <p>Chuva, pista molhada e temperatura extrema por base</p>
-      </div>
-    </div>
-    <div class="hint">Previsão horária · Tomorrow.io</div>
-  </div>
-</header>
-
 <main>
-  <section class="panel">
-    <div class="panel-label">Base</div>
-    <div class="bases" id="bases" role="radiogroup" aria-label="Base"></div>
-    <button id="fetch">Consultar previsão</button>
-  </section>
+  <h1>NOTAM <span>TW</span></h1>
 
-  <div id="out">
-    <div class="placeholder">
-      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.5 17H7a5 5 0 1 1 1.6-9.74A6 6 0 0 1 20 10.5 3.5 3.5 0 0 1 17.5 17Z"/></svg>
-      <div>Escolha uma base e clique em <b>Consultar previsão</b>.</div>
-      <div style="font-size:.8rem;margin-top:4px">Cada consulta gasta 1 request da Tomorrow.io.</div>
-    </div>
+  <div class="toolbar">
+    <select id="location"></select>
+    <button id="fetch">Consultar API</button>
   </div>
+
+  <div id="out"></div>
 </main>
 
 <script>
@@ -188,137 +82,56 @@ const el = (tag, props = {}, ...kids) => { const n = Object.assign(document.crea
 const num = (v, d) => v == null ? "—" : Number(v).toLocaleString("pt-BR", { minimumFractionDigits: d, maximumFractionDigits: d });
 const fmtHour = t => new Date(t).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 const fmtDay = t => new Date(t).toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit" });
-const fmtShort = t => new Date(t).toLocaleString("pt-BR", { weekday: "short", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
-const dayKey = t => new Date(t).toDateString();
-const store = { get: k => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch {} } };
 
-// Critérios (mm/h para intensidade, °C para temperatura)
-const RULES = [
-  { key: "heavy", label: "Chuva forte", desc: "≥ 10 mm/h",     color: "--c-heavy" },
-  { key: "rain",  label: "Chuva",       desc: "2,6 – 9,9 mm/h", color: "--c-rain" },
-  { key: "light", label: "Chuva fraca", desc: "0,5 – 2,59 mm/h", color: "--c-light" },
-  { key: "wet",   label: "Possibilidade de pista molhada", short: "Pista molhada", desc: "> 3 mm/h", color: "--c-wet" },
-  { key: "hot",   label: "Temperatura extrema", short: "Temp. extrema", desc: "> 34 °C", color: "--c-hot" },
-];
-const RULE = Object.fromEntries(RULES.map(r => [r.key, r]));
-
-function rainLevel(i) {
-  if (i >= 10) return "heavy";
-  if (i >= 2.6) return "rain";
-  if (i >= 0.5) return "light";
-  return null;
-}
-function conditions(h) {
-  const tags = [], lvl = rainLevel(h.rain_intensity);
-  if (lvl) tags.push(lvl);
-  if (h.rain_intensity > 3) tags.push("wet");
-  if (h.temperature > 34) tags.push("hot");
-  return tags;
-}
-
-// Bases (value = ID da location na Tomorrow.io)
+// value de cada option = ID da location na Tomorrow.io
 fetch("api/locations").then(r => r.json()).then(locs => {
-  const saved = store.get("base");
-  const sel = locs.some(l => l.id === saved) ? saved : locs[0]?.id;
-  $("bases").replaceChildren(...locs.flatMap(l => {
-    const id = "b-" + l.id;
-    const input = el("input", { type: "radio", name: "base", id, value: l.id, checked: l.id === sel });
-    input.onchange = () => store.set("base", l.id);
-    return [input, el("label", { htmlFor: id, textContent: l.name })];
-  }));
+  $("location").replaceChildren(...locs.map(l => el("option", { value: l.id, textContent: l.name })));
 });
-const selectedBase = () => document.querySelector('input[name="base"]:checked');
 
 $("fetch").onclick = async () => {
-  const btn = $("fetch"), out = $("out"), base = selectedBase();
-  if (!base) return;
-  btn.disabled = true; btn.replaceChildren(el("span", { className: "spin" }), "Consultando…");
-  out.replaceChildren(el("div", { className: "skeleton" }), el("div", { className: "skeleton" }));
+  const btn = $("fetch"), out = $("out");
+  btn.disabled = true; btn.textContent = "Carregando…";
   try {
-    const r = await fetch(`api/forecast?location=${encodeURIComponent(base.value)}`);
+    const r = await fetch(`api/forecast?location=${encodeURIComponent($("location").value)}`);
     const j = await r.json();
     if (!r.ok) throw new Error(j.detail || r.statusText);
-    out.replaceChildren(...render(j));
+    out.replaceChildren(table(j.hourly));
   } catch (err) {
     out.replaceChildren(el("div", { className: "err", textContent: "Erro: " + err.message }));
   } finally {
-    btn.disabled = false; btn.replaceChildren("Consultar previsão");
+    btn.disabled = false; btn.textContent = "Consultar API";
   }
 };
 
-function render(data) {
-  const hourly = data.hourly.map(h => ({ ...h, tags: conditions(h) }));
-  const flagged = hourly.filter(h => h.tags.length);
-  const nodes = [];
-
-  // Cabeçalho + resumo
-  const first = hourly[0]?.time, last = hourly.at(-1)?.time;
-  nodes.push(el("div", { className: "head" },
-    el("h2", { textContent: data.location?.name || "Previsão" }),
-    el("span", { textContent: first ? `${fmtShort(first)} → ${fmtShort(last)} · consultado às ${fmtHour(new Date())}` : "" })));
-
-  nodes.push(el("div", { className: "stats" }, ...RULES.map(r => {
-    const hits = flagged.filter(h => h.tags.includes(r.key));
-    const card = el("div", { className: "stat" + (hits.length ? "" : " zero") },
-      el("div", { className: "stat-label", textContent: r.short || r.label }),
-      el("div", { className: "stat-value" }, String(hits.length), el("small", { textContent: hits.length === 1 ? "hora" : "horas" })),
-      el("div", { className: "stat-next", textContent: hits.length ? `próxima: ${fmtShort(hits[0].time)}` : r.desc }));
-    card.style.setProperty("--c", `var(${r.color})`);
-    return card;
-  })));
-
-  nodes.push(el("div", { className: "legend" }, ...RULES.map(r => {
-    const i = el("i"); i.style.background = `var(${r.color})`;
-    return el("span", {}, i, `${r.short || r.label} ${r.desc}`);
-  })));
-
-  if (!flagged.length) {
-    nodes.push(el("div", { className: "empty", textContent: "Nenhum horário com chuva ou temperatura extrema na previsão." }));
-    return nodes;
-  }
-
-  // Um cartão por dia que tenha algum horário sinalizado
-  const days = new Map();
-  for (const h of hourly) {
-    const k = dayKey(h.time);
-    if (!days.has(k)) days.set(k, []);
-    days.get(k).push(h);
-  }
-  for (const hours of days.values()) {
-    const hits = hours.filter(h => h.tags.length);
-    if (!hits.length) continue;
-    const byHour = new Map(hours.map(h => [new Date(h.time).getHours(), h]));
-    const maxT = Math.max(...hours.map(h => h.temperature ?? -Infinity));
-    const rainH = hits.filter(h => rainLevel(h.rain_intensity)).length;
-
-    const strip = el("div", { className: "strip" }, ...Array.from({ length: 24 }, (_, hr) => {
-      const h = byHour.get(hr);
-      if (!h) return el("div", { className: "na", title: `${String(hr).padStart(2, "0")}h · fora da previsão` });
-      const cls = [rainLevel(h.rain_intensity), h.temperature > 34 && "hot"].filter(Boolean).join(" ");
-      const tip = `${fmtHour(h.time)} · ${num(h.temperature, 1)} °C` + (h.tags.length ? " · " + h.tags.map(t => RULE[t].label).join(", ") : "");
-      return el("div", { className: cls, title: tip });
-    }));
-    const axis = el("div", { className: "strip-axis" }, ...Array.from({ length: 24 }, (_, hr) => el("span", { textContent: String(hr).padStart(2, "0") + "h" })));
-
-    nodes.push(el("section", { className: "day" },
-      el("div", { className: "day-head" },
-        el("h3", { textContent: fmtDay(hours[0].time) }),
-        el("span", { textContent: [`${hits.length} ${hits.length === 1 ? "hora sinalizada" : "horas sinalizadas"}`, rainH && `${rainH} com chuva`, isFinite(maxT) && `máx ${num(maxT, 1)} °C`].filter(Boolean).join(" · ") })),
-      strip, axis,
-      el("div", { className: "cols" }, ...["Horário", "Condições", "Temp.", "Prob. precip."].map(t => el("span", { textContent: t }))),
-      el("div", { className: "rows" }, ...hits.map(row))));
-  }
-  return nodes;
+// Critérios (mm/h para intensidade, °C para temperatura)
+function conditions(h) {
+  const i = h.rain_intensity, t = h.temperature, tags = [];
+  if (i >= 10) tags.push(["heavy", "Chuva forte"]);
+  else if (i >= 2.6) tags.push(["rain", "Chuva"]);
+  else if (i >= 0.5) tags.push(["light", "Chuva fraca"]);
+  if (i > 3) tags.push(["wet", "Possibilidade de pista molhada"]);
+  if (t > 34) tags.push(["hot", "Temperatura extrema"]);
+  return tags;
 }
 
-function row(h) {
-  const p = Math.max(0, Math.min(100, h.precipitation_probability ?? 0));
-  const bar = el("b"); bar.style.width = p + "%";
-  return el("div", { className: "row" },
-    el("div", { className: "row-time", textContent: fmtHour(h.time) }),
-    el("div", { className: "tags" }, ...h.tags.map(t => el("span", { className: `tag ${t}`, textContent: RULE[t].label }))),
-    el("div", { className: "row-temp" + (h.temperature > 34 ? " hot" : ""), textContent: `${num(h.temperature, 1)} °C` }),
-    el("div", { className: "prob" }, el("span", { className: "bar" }, bar), el("span", { textContent: `${num(h.precipitation_probability, 0)} %` })));
+function table(hourly) {
+  const rows = [];
+  let day = null;
+  for (const h of hourly) {
+    const tags = conditions(h);
+    if (!tags.length) continue; // só horários com alguma condição
+    const d = fmtDay(h.time);
+    if (d !== day) { day = d; rows.push(el("tr", { className: "day" }, el("td", { colSpan: 4, textContent: d }))); }
+    rows.push(el("tr", { className: h.rain_intensity >= 0.5 ? "rain" : "" },
+      el("td", { textContent: fmtHour(h.time) }),
+      el("td", { className: h.temperature > 34 ? "hot" : "", textContent: `${num(h.temperature, 1)} °C` }),
+      el("td", { className: "cond" }, ...tags.map(([c, txt]) => el("span", { className: `tag ${c}`, textContent: txt }))),
+      el("td", { textContent: `${num(h.precipitation_probability, 0)} %` })));
+  }
+  if (!rows.length) return el("div", { className: "empty", textContent: "Nenhum horário com chuva ou temperatura extrema na previsão." });
+  return el("div", { className: "wrap" }, el("table", {},
+    el("thead", {}, el("tr", {}, ...["Horário", "Temperatura", "Condições", "Prob. precipitação"].map(t => el("th", { textContent: t })))),
+    el("tbody", {}, ...rows)));
 }
 </script>
 </body>
