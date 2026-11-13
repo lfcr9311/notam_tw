@@ -1,4 +1,4 @@
-# Deploy automatico: a cada push na main, roda os testes (sem chamar a Tomorrow.io)
+# Deploy automatico: a cada push na master, roda os testes (sem chamar a Tomorrow.io)
 # e entra no EC2 por SSH para rodar deploy/atualizar.sh (git pull + docker compose up --build).
 # O app responde em http://<EC2>/weather/ (repassado pelo Caddy do ~/fortran).
 # Configuracao (secrets, chave SSH, primeira instalacao): deploy/README.md.
@@ -6,7 +6,7 @@ name: Deploy no EC2
 
 on:
   push:
-    branches: [main]
+    branches: [master]
   workflow_dispatch:          # botao "Run workflow" na aba Actions
 
 # um deploy por vez; um push durante o deploy espera o anterior terminar

@@ -1,70 +1,52 @@
-# Deploy no EC2
+# Deploy no EC2 (`/weather`)
 
-Cada push na `main` dispara [.github/workflows/deploy.yml](../.github/workflows/deploy.yml):
+Roda no mesmo EC2 do RPL (`ec2-3-137-219-87.us-east-2.compute.amazonaws.com`). O container
+`notam-tw` entra na rede do Caddy do `~/fortran` (`fortran_default`), e o Caddy repassa
+`/weather/*` para `notam-tw:8000` tirando o prefixo (rota em `~/fortran/deploy/Caddyfile`).
 
-1. **test**: `pytest` (sem chamar a Tomorrow.io, tudo mockado) + `docker build`.
-2. **deploy**: SSH no EC2, roda `~/notam_tw/deploy/atualizar.sh` (`git reset` para `origin/main` + `docker compose up -d --build`).
-3. Confere `http://<EC2>/weather/api/health`.
+A cada push na `master`, `.github/workflows/deploy.yml` roda os testes (mockados, sem gastar
+request da Tomorrow.io), entra no EC2 por SSH e roda `deploy/atualizar.sh`: `git reset` para
+`origin/master`, `docker compose up -d --build`, conferência de `/weather/api/health`.
 
-O container `notam-tw` entra na rede docker do Caddy do `~/fortran`, que repassa `/weather/*` para `notam-tw:8000`.
+## Uma vez no seu computador
 
-## Primeira instalação (uma vez, no EC2)
-
-```bash
-# 1. clonar (repo privado: use uma deploy key read-only no GitHub)
-git clone git@github.com:<org>/notam_tw.git ~/notam_tw
-cd ~/notam_tw
-
-# 2. segredo da API (não vai pro git)
-cp .env.example .env && nano .env          # TOMORROW_API_KEY=...
-
-# 3. nome da rede do Caddy; se não for fortran_default, coloque PROXY_NETWORK=<nome> no .env
-docker network ls
-
-# 4. subir
-bash deploy/atualizar.sh
-```
-
-### Rota no Caddy (`~/fortran/Caddyfile`)
-
-Dentro do bloco do site, junto com o `/rpl*`:
-
-```caddyfile
-redir /weather /weather/
-handle_path /weather/* {
-    reverse_proxy notam-tw:8000
-}
-```
-
-`handle_path` tira o prefixo `/weather`, então o app continua servindo em `/`; o frontend usa caminhos relativos (`api/...`), por isso a barra final em `/weather/` é necessária (o `redir` cuida disso). Depois: `docker compose -f ~/fortran/docker-compose.yml exec caddy caddy reload --config /etc/caddy/Caddyfile` (ajuste o nome do serviço/caminho).
-
-## Secrets do GitHub (Settings > Secrets and variables > Actions)
-
-| Secret | Valor |
-|---|---|
-| `EC2_HOST` | IP ou DNS público do EC2 (sem `user@`, sem `http://`) |
-| `EC2_USER` | usuário SSH (ex.: `ubuntu`, `ec2-user`) |
-| `EC2_SSH_KEY` | chave **privada** usada só pelo deploy (conteúdo inteiro, com as linhas `BEGIN/END`) |
-| `EC2_KNOWN_HOSTS` | saída de `ssh-keyscan -t ed25519 <EC2_HOST>` |
-
-Se já existir uma chave de deploy para o `rpl-s3-uploader-backend` no mesmo EC2, dá para reutilizar os mesmos valores.
-
-Gerar uma chave nova:
+Chave só para o deploy, limitada a rodar o `atualizar.sh` deste repositório
+(já criada em `~/.ssh/gh_deploy_notam_tw`):
 
 ```bash
-ssh-keygen -t ed25519 -f notam_deploy -N "" -C github-actions-notam
-ssh-copy-id -i notam_deploy.pub <EC2_USER>@<EC2_HOST>   # ou cole o .pub em ~/.ssh/authorized_keys
-cat notam_deploy                                          # -> EC2_SSH_KEY
-ssh-keyscan -t ed25519 <EC2_HOST>                         # -> EC2_KNOWN_HOSTS
+H=ec2-3-137-219-87.us-east-2.compute.amazonaws.com
+echo "command=\"bash ~/notam_tw/deploy/atualizar.sh\",no-port-forwarding,no-agent-forwarding,no-X11-forwarding,no-pty $(cat ~/.ssh/gh_deploy_notam_tw.pub)" \
+  | ssh -i ~/Downloads/SSH.pem -o IdentitiesOnly=yes ubuntu@$H 'cat >> ~/.ssh/authorized_keys'
 ```
 
-O security group precisa liberar a porta 22 para os runners do GitHub (ou 0.0.0.0/0 só com chave) e a 80 para quem vai usar o app.
-
-## Diagnóstico no EC2
+## Uma vez no EC2
 
 ```bash
-cd ~/notam_tw
-docker compose ps
-docker compose logs -f notam-tw
-curl http://127.0.0.1:8000/api/health
+git clone https://github.com/lfcr9311/notam_tw.git ~/notam_tw
 ```
+
+Copie o `.env` com a `TOMORROW_API_KEY` (não vai pro git), do seu computador:
+
+```bash
+scp -i ~/Downloads/SSH.pem -o IdentitiesOnly=yes .env ubuntu@$H:~/notam_tw/.env
+```
+
+Depois, no EC2: `bash ~/notam_tw/deploy/atualizar.sh`.
+
+## Uma vez no GitHub: secrets (já cadastrados)
+
+```bash
+R=lfcr9311/notam_tw
+gh secret set EC2_HOST -R $R -b "$H"
+gh secret set EC2_USER -R $R -b "ubuntu"
+gh secret set EC2_SSH_KEY -R $R < ~/.ssh/gh_deploy_notam_tw
+ssh-keyscan -t ed25519 $H | gh secret set EC2_KNOWN_HOSTS -R $R
+```
+
+## Dia a dia
+
+No EC2, em `~/notam_tw`:
+- `docker compose logs -f notam-tw`: log do servidor
+- `curl http://127.0.0.1:8000/api/health`: o app, sem passar pelo Caddy
+- `bash deploy/atualizar.sh`: o mesmo deploy, rodado à mão
+- mudou o `.env`: `docker compose up -d --force-recreate`
