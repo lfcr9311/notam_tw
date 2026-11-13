@@ -4,8 +4,12 @@
 set -euo pipefail
 
 APP_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-BRANCH="${DEPLOY_BRANCH:-master}"
 cd "$APP_DIR"
+# a chave de deploy tem command= fixo no authorized_keys, entao DEPLOY_BRANCH do workflow
+# nao chega aqui; sem ele, usa o branch padrao do GitHub (origin/HEAD)
+git remote set-head origin --auto >/dev/null 2>&1 || true
+DEFAULT_BRANCH="$(git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's|^origin/||')"
+BRANCH="${DEPLOY_BRANCH:-${DEFAULT_BRANCH:-master}}"
 
 echo "==> $APP_DIR @ $BRANCH"
 [ -f .env ] || { echo "ERRO: falta $APP_DIR/.env (copie .env.example e coloque a TOMORROW_API_KEY)"; exit 1; }
