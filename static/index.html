@@ -13,11 +13,9 @@
     --text: #0f1720; --text-2: #4a5563; --muted: #7b8594;
     --line: #e4e8ee; --grid: #eef1f5; --accent: #0a4ea2; --rain: #2a78d6;
     --err-bg: #fde8e8; --err-fg: #8a1c1c;
-    --b-light: #e3effc; --b-light-fg: #1d5fa8;
     --b-rain: #c9defa; --b-rain-fg: #0f4489;
     --b-heavy: #1f5fbf; --b-heavy-fg: #ffffff;
     --b-wet: #fff1d6; --b-wet-fg: #8a5300;
-    --b-hot: #fde2dc; --b-hot-fg: #a42a12;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
@@ -26,11 +24,9 @@
       --text: #eef1f5; --text-2: #b7c0cc; --muted: #8590a0;
       --line: #2a313c; --grid: #222934; --accent: #3987e5; --rain: #3987e5;
       --err-bg: #3a1616; --err-fg: #f3a5a5;
-      --b-light: #16283f; --b-light-fg: #9cc4f2;
       --b-rain: #1d3a5f; --b-rain-fg: #c4dcfa;
       --b-heavy: #3987e5; --b-heavy-fg: #0d1117;
       --b-wet: #3a2a0e; --b-wet-fg: #f5c46b;
-      --b-hot: #3d1a13; --b-hot-fg: #f7a28f;
     }
   }
   * { box-sizing: border-box; }
@@ -54,12 +50,9 @@
   tr.rain td:first-child { box-shadow: inset 3px 0 var(--rain); }
   td.cond { text-align: left; }
   .tag { display: inline-block; padding: 2px 8px; margin: 1px 4px 1px 0; border-radius: 999px; font-size: .75rem; font-weight: 600; }
-  .tag.light { background: var(--b-light); color: var(--b-light-fg); }
   .tag.rain  { background: var(--b-rain);  color: var(--b-rain-fg); }
   .tag.heavy { background: var(--b-heavy); color: var(--b-heavy-fg); }
   .tag.wet   { background: var(--b-wet);   color: var(--b-wet-fg); }
-  .tag.hot   { background: var(--b-hot);   color: var(--b-hot-fg); }
-  td.hot { color: var(--b-hot-fg); font-weight: 600; }
   .empty { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; color: var(--text-2); }
   tr.day td { background: var(--surface-2); color: var(--text-2); font-weight: 600; font-size: .8rem; }
 </style>
@@ -103,14 +96,12 @@ $("fetch").onclick = async () => {
   }
 };
 
-// Critérios (mm/h para intensidade, °C para temperatura)
+// Critérios (mm/h de intensidade de precipitação)
 function conditions(h) {
-  const i = h.rain_intensity, t = h.temperature, tags = [];
+  const i = h.rain_intensity, tags = [];
   if (i >= 10) tags.push(["heavy", "Chuva forte"]);
   else if (i >= 2.6) tags.push(["rain", "Chuva"]);
-  else if (i >= 0.5) tags.push(["light", "Chuva fraca"]);
   if (i > 3) tags.push(["wet", "Possibilidade de pista molhada"]);
-  if (t > 34) tags.push(["hot", "Temperatura extrema"]);
   return tags;
 }
 
@@ -121,16 +112,15 @@ function table(hourly) {
     const tags = conditions(h);
     if (!tags.length) continue; // só horários com alguma condição
     const d = fmtDay(h.time);
-    if (d !== day) { day = d; rows.push(el("tr", { className: "day" }, el("td", { colSpan: 4, textContent: d }))); }
-    rows.push(el("tr", { className: h.rain_intensity >= 0.5 ? "rain" : "" },
+    if (d !== day) { day = d; rows.push(el("tr", { className: "day" }, el("td", { colSpan: 3, textContent: d }))); }
+    rows.push(el("tr", { className: h.rain_intensity >= 2.6 ? "rain" : "" },
       el("td", { textContent: fmtHour(h.time) }),
-      el("td", { className: h.temperature > 34 ? "hot" : "", textContent: `${num(h.temperature, 1)} °C` }),
       el("td", { className: "cond" }, ...tags.map(([c, txt]) => el("span", { className: `tag ${c}`, textContent: txt }))),
       el("td", { textContent: `${num(h.precipitation_probability, 0)} %` })));
   }
-  if (!rows.length) return el("div", { className: "empty", textContent: "Nenhum horário com chuva ou temperatura extrema na previsão." });
+  if (!rows.length) return el("div", { className: "empty", textContent: "Nenhum horário com chuva na previsão." });
   return el("div", { className: "wrap" }, el("table", {},
-    el("thead", {}, el("tr", {}, ...["Horário", "Temperatura", "Condições", "Prob. precipitação"].map(t => el("th", { textContent: t })))),
+    el("thead", {}, el("tr", {}, ...["Horário", "Condições", "Prob. precipitação"].map(t => el("th", { textContent: t })))),
     el("tbody", {}, ...rows)));
 }
 </script>
