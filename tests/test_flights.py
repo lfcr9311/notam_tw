@@ -25,7 +25,8 @@ CSV = "\n".join([
 def frozen_now_and_no_network(monkeypatch):
     app_module._cache.clear()
     real_build = flights.build_payload
-    monkeypatch.setattr(app_module, "build_payload", lambda d, n, days: real_build(d, n, days, NOW))
+    # testes usam D0-D14 a partir de 01/12 para nao depender da janela D7-D15 (testada a parte)
+    monkeypatch.setattr(app_module, "build_payload", lambda d, n: real_build(d, n, 0, 14, NOW))
 
     async def blocked(*a, **k):
         raise AssertionError("teste tentou chamar a Tomorrow.io")
@@ -34,7 +35,7 @@ def frozen_now_and_no_network(monkeypatch):
 
 def payload(text=CSV, days=2, use_dates=True):
     """use_dates=True: modo que respeita EffDt/DisDt/Freq (o padrao do app avalia pelo horario todo dia)."""
-    return flights.build_payload(text.encode(), "malha.csv", days, NOW, use_dates)
+    return flights.build_payload(text.encode(), "malha.csv", 0, days - 1, NOW, use_dates)
 
 
 def test_expande_periodo_e_frequencia():
@@ -94,7 +95,7 @@ def test_le_xlsx():
                "MAO", time(3, 40), "AD  32N", time(3, 40)])
     buf = io.BytesIO()
     wb.save(buf)
-    out = flights.build_payload(buf.getvalue(), "malha.xlsx", 1, NOW, use_dates=True)
+    out = flights.build_payload(buf.getvalue(), "malha.xlsx", 0, 0, NOW, use_dates=True)
     assert [r["external_id"] for r in out["records"]] == ["AZU2002-20261201-SBKP-SBEG"]
 
 
@@ -207,3 +208,32 @@ def test_merge_condicoes_da_janela():
     from impact import _merge
     found = [({}, [["rain", "Chuva"]]), ({}, [["heavy", "Chuva forte"], ["wet", "Possibilidade de pista molhada"]])]
     assert [t[1] for t in _merge(found)] == ["Chuva forte", "Possibilidade de pista molhada"]
+
+
+def test_janela_d7_a_d15():
+    now = datetime(2026, 11, 16, 13, 30, tzinfo=UTC)
+    start, end = flights.window(now=now)
+    assert start == datetime(2026, 11, 23, tzinfo=UTC)        # D+7 00:00
+    assert end == datetime(2026, 12, 1, 13, tzinfo=UTC)       # fim da previsao (agora + 360h) antes do fim de D+15
+
+
+def test_preview_so_d7_a_d15(monkeypatch):
+    monkeypatch.setattr(app_module, "build_payload", flights.build_payload)  # janela real
+    r = client.post("/api/flights/preview", content=MARKET.encode(), headers={"x-filename": "mc.csv"}).json()
+    start, end = flights.window()
+    assert r["window"] == {"from": flights.iso(start), "to": flights.iso(end)}
+    assert all(start <= datetime.fromisoformat(f["std"].replace("Z", "+00:00")) < end
+               or start <= datetime.fromisoformat(f["sta"].replace("Z", "+00:00")) < end for f in r["flights"])
+
+
+def test_relatorio_pdf(monkeypatch):
+    async def fake_fetch(location, fields):
+        if location == app_module.BELEM:
+            return hourly("2026-12-01T00:00:00Z", {"2026-12-03T21:00:00Z": 12})
+        return hourly("2026-12-01T00:00:00Z", {})
+    monkeypatch.setattr(app_module, "fetch_tomorrow_timelines", fake_fetch)
+    r = client.post("/api/flights/report.pdf", content=MARKET.encode(),
+                    headers={"x-filename": "Market%20Constraints.csv"})
+    assert r.status_code == 200 and r.headers["content-type"] == "application/pdf"
+    assert r.content.startswith(b"%PDF")
+    assert 'filename="voos-impactados-20261201.pdf"' in r.headers["content-disposition"]

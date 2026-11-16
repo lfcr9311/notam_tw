@@ -3,15 +3,17 @@ import json
 import os
 import time
 from pathlib import Path
+from urllib.parse import unquote
 
 import httpx
 from dotenv import load_dotenv
 from fastapi import Body, FastAPI, Header, HTTPException, Query, Request
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 
 from extract import FIELDS, extract_forecast, parse_json
-from flights import HORIZON_DAYS, ScheduleError, build_payload
+from flights import ScheduleError, build_payload
 from impact import conditions, impacted
+from report import build_pdf
 from sources import fetch_tomorrow_timelines
 
 load_dotenv()
@@ -106,7 +108,7 @@ async def _schedule(request: Request, filename: str) -> dict:
     if len(data) > MAX_UPLOAD:
         raise HTTPException(413, "Arquivo maior que 20 MB")
     try:
-        return build_payload(data, filename or "malha.xlsx", HORIZON_DAYS)
+        return build_payload(data, filename or "malha.xlsx")  # janela D7-D15
     except ScheduleError as e:
         raise HTTPException(400, str(e))
 
@@ -146,18 +148,35 @@ def _bases_in(flights: list[dict]) -> list[str]:
     return [loc for loc, b in LOCATIONS.items() if b["icao"] in icaos]
 
 
-@app.post("/api/flights/impact")
-async def flights_impact(request: Request, x_filename: str = Header("malha.xlsx")):
-    """Voos com chuva/pista molhada na partida ou chegada nas bases cadastradas.
-    1 request por base presente na malha (as que estão no cache não gastam)."""
-    out = await _schedule(request, x_filename)
+async def _impact(request: Request, filename: str) -> dict:
+    """Malha x previsão das bases presentes nela (1 request por base fora do cache)."""
+    out = await _schedule(request, filename)
     bases = _bases_in(out["flights"])
     results = await asyncio.gather(*(get_forecast(b) for b in bases))
-    forecasts = {data["location"]["icao"]: data["hourly"] for data, _ in results}
     return {
-        "bases": [{"name": LOCATIONS[b]["name"], "icao": LOCATIONS[b]["icao"], "cached": hit}
-                  for b, (_, hit) in zip(bases, results)],
+        "window": out["window"],
+        "bases": [{"name": LOCATIONS[b]["name"], "icao": LOCATIONS[b]["icao"], "cached": hit, "hourly": data["hourly"]}
+                  for b, (data, hit) in zip(bases, results)],
         "requests": sum(not hit for _, hit in results),
         "flights": len(out["flights"]),
-        "impacted": impacted(out["flights"], forecasts),
+        "impacted": impacted(out["flights"], {data["location"]["icao"]: data["hourly"] for data, _ in results}),
     }
+
+
+@app.post("/api/flights/impact")
+async def flights_impact(request: Request, x_filename: str = Header("malha.xlsx")):
+    """Voos com chuva/pista molhada na partida ou chegada nas bases cadastradas (janela D7-D15)."""
+    res = await _impact(request, x_filename)
+    res["bases"] = [{k: v for k, v in b.items() if k != "hourly"} for b in res["bases"]]
+    return res
+
+
+@app.post("/api/flights/report.pdf")
+async def flights_report(request: Request, x_filename: str = Header("malha.xlsx")):
+    """PDF com os voos afetados e as condições previstas nas bases (usa o cache da previsão)."""
+    res = await _impact(request, x_filename)
+    name = unquote(x_filename)
+    pdf = build_pdf(impacted=res["impacted"], bases=res["bases"], window=res["window"], filename=name)
+    stamp = res["window"]["from"][:10].replace("-", "")
+    return Response(pdf, media_type="application/pdf",
+                    headers={"content-disposition": f'attachment; filename="voos-impactados-{stamp}.pdf"'})

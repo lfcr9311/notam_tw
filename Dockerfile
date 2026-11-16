@@ -6,7 +6,7 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY app.py extract.py sources.py flights.py impact.py ./
+COPY app.py extract.py sources.py flights.py impact.py report.py ./
 COPY static ./static
 COPY data ./data
 

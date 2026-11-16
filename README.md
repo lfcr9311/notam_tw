@@ -28,6 +28,7 @@ Aceita a resposta de `/v4/timelines` (`data.timelines[].intervals`) ou de `/v4/w
 - `app.py`: IDs das bases em `LOCATIONS` (Salvador, Belém), cache da previsão, `GET /api/forecast?location=<ID>` (faz a request pelo ID), `POST /api/extract` (JSON colado) + serve o frontend
 - `flights.py`: malha (Market Constraints / SSIM) → voos datados em UTC
 - `impact.py`: critérios de chuva/pista molhada e junção voos × previsão
+- `report.py`: PDF dos voos afetados e das condições
 - `static/index.html`: frontend (select das bases + tabela, upload da malha)
 
 ## Voos impactados por chuva
@@ -38,13 +39,18 @@ Bases cadastradas (`LOCATIONS` em `app.py`): **Salvador (SBSV)** e **Belém (SBB
    (padrão; título/preâmbulo antes do cabeçalho, horários em UTC, voo repetido nas linhas de partida e chegada
    vira um só) ou `.xlsx` SSIM. A prévia não chama a API.
 2. **Verificar chuva** pega a previsão de 360h de cada base que aparece na malha (1 request por base) e cruza
-   em memória: voo impactado = partida ou chegada na base dentro de uma hora com chuva (≥ 2,6 mm/h),
-   chuva forte (≥ 10) ou possibilidade de pista molhada (> 3) — critérios em `impact.py`.
+   em memória os voos de **D+7 a D+15** (`FIRST_DAY`/`LAST_DAY` em `flights.py`): o horário de cada voo com
+   Dep (partida) ou Arv (chegada) na base é conferido em cada dia; impactado = chuva (≥ 2,6 mm/h), chuva forte
+   (≥ 10) ou possibilidade de pista molhada (> 3) na hora do voo, 1h antes ou 1h depois — critérios em `impact.py`.
+   As datas `EffDt`/`DisDt`/`Freq` da malha não limitam (`USE_SCHEDULE_DATES = False`).
+   **Baixar PDF** (`POST /api/flights/report.pdf`, `report.py`) gera os voos afetados e as condições previstas
+   em cada base no período, em UTC.
 3. A previsão de cada base fica em memória por `FORECAST_CACHE_MIN` minutos (padrão 60), compartilhada com
    **Consultar API**: repetir a verificação ou consultar a base de novo nesse intervalo não gasta request.
 
 - IATA → ICAO: `data/airports.csv`; `AD` + `4787` → `AZU4787`
-- Offline: `python flights.py malha.csv --days 15 -o voos.json`
+- Previsão por base: **±2h** (horas com condição + 2h antes e depois) ou **24h** (todas as horas), sem nova request
+- Offline: `python flights.py malha.csv --from-day 7 --to-day 15 -o voos.json`
 
 ## Testes e deploy
 

@@ -21,7 +21,9 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 UTC = timezone.utc
-HORIZON_DAYS = 15          # janela analisada = alcance da previsao (360h)
+# janela analisada: de D+FIRST_DAY (00:00 UTC) ate o fim de D+LAST_DAY, limitada ao alcance da previsao
+FIRST_DAY, LAST_DAY = 7, 15
+FORECAST_HOURS = 360
 # False: cada voo da malha e avaliado pelo HORARIO em todos os dias da janela (EffDt/DisDt/Freq ignorados);
 # True: so nos dias em que opera pelo periodo e frequencia da malha
 USE_SCHEDULE_DATES = False
@@ -303,17 +305,19 @@ def to_tomorrow(f: dict, now: datetime) -> dict:
     return {"title": f"Voo {f['flight']}", "external_id": ext_id, "timestamp": iso(now), "fields": fields}
 
 
-def window(days: int = HORIZON_DAYS, now: datetime | None = None) -> tuple[datetime, datetime]:
-    """Do inicio de hoje (UTC) ate `days` dias depois."""
+def window(first_day: int = FIRST_DAY, last_day: int = LAST_DAY,
+           now: datetime | None = None) -> tuple[datetime, datetime]:
+    """De D+first_day 00:00 UTC ate o fim de D+last_day, sem passar do fim da previsao (agora + 360h)."""
     now = now or datetime.now(UTC)
-    start = now.replace(hour=0, minute=0, second=0, microsecond=0)
-    return start, start + timedelta(days=days)
+    today = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    forecast_end = now.replace(minute=0, second=0, microsecond=0) + timedelta(hours=FORECAST_HOURS)
+    return today + timedelta(days=first_day), min(today + timedelta(days=last_day + 1), forecast_end)
 
 
-def build_payload(data: bytes, filename: str, days: int = HORIZON_DAYS, now: datetime | None = None,
-                  use_dates: bool = USE_SCHEDULE_DATES) -> dict:
+def build_payload(data: bytes, filename: str, first_day: int = FIRST_DAY, last_day: int = LAST_DAY,
+                  now: datetime | None = None, use_dates: bool = USE_SCHEDULE_DATES) -> dict:
     now = now or datetime.now(UTC)
-    start, end = window(days, now)
+    start, end = window(first_day, last_day, now)
     flights, warnings, basis = load_flights(read_rows(data, filename), start, end, use_dates=use_dates)
     return {
         "records": [to_tomorrow(f, now) for f in flights],
@@ -328,10 +332,11 @@ if __name__ == "__main__":
     import argparse
     p = argparse.ArgumentParser(description="Converte a malha no payload do Flight Schedule (nao envia nada).")
     p.add_argument("malha")
-    p.add_argument("--days", type=int, default=HORIZON_DAYS)
+    p.add_argument("--from-day", type=int, default=FIRST_DAY, help="primeiro dia (D+N), padrao 7")
+    p.add_argument("--to-day", type=int, default=LAST_DAY, help="ultimo dia (D+N), padrao 15")
     p.add_argument("-o", "--output", help="grava os registros em JSON")
     a = p.parse_args()
-    out = build_payload(Path(a.malha).read_bytes(), a.malha, a.days)
+    out = build_payload(Path(a.malha).read_bytes(), a.malha, a.from_day, a.to_day)
     print(f"{len(out['records'])} voos entre {out['window']['from']} e {out['window']['to']} (horarios em {out['basis']})",
           file=sys.stderr)
     for w in out["warnings"]:
