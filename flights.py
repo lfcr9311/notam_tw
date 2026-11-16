@@ -81,8 +81,8 @@ def read_rows(data: bytes, filename: str) -> list[list[str]]:
         from openpyxl import load_workbook
         try:
             wb = load_workbook(io.BytesIO(data), read_only=True, data_only=True)
-        except Exception as e:  # zip/xml invalido
-            raise ScheduleError(f"Nao consegui abrir o .xlsx: {e}")
+        except Exception:  # zip/xml invalido
+            raise ScheduleError("Não foi possível abrir o arquivo .xlsx.")
         rows = [[_cell(c) for c in r] for r in wb.worksheets[0].iter_rows(values_only=True)]
         wb.close()
         return rows
@@ -109,7 +109,8 @@ def map_columns(header: list[str]) -> dict[str, int]:
     cols = {f: keys.index(a) for f, aliases in COLUMNS.items() for a in reversed(aliases) if a in keys}
     missing = [f for f in REQUIRED if f not in cols]
     if missing:
-        raise ScheduleError(f"Colunas obrigatorias ausentes: {', '.join(missing)}. Cabecalho lido: {header}")
+        raise ScheduleError("Arquivo não reconhecido como malha de voos. Colunas esperadas: "
+                            "Aln, Flt Nr, Dep, Arv, DepTm, ArvTm, EffDt, DisDt, Freq.")
     return cols
 
 
@@ -142,7 +143,7 @@ def parse_date(v: str) -> date:
             return datetime.strptime(v.upper() if "%b" in fmt else v, fmt).date()
         except ValueError:
             pass
-    raise ScheduleError(f"data invalida '{v}'")
+    raise ScheduleError(f"data inválida '{v}'")
 
 
 def parse_time(v: str) -> tuple[time, int]:
@@ -154,7 +155,7 @@ def parse_time(v: str) -> tuple[time, int]:
         extra, v = int(m.group(1)), v[: m.start()].strip()
     m = re.fullmatch(r"(\d{1,2}):?(\d{2})(?::\d{2})?", v)
     if not m:
-        raise ScheduleError(f"horario invalido '{v}'")
+        raise ScheduleError(f"horário inválido '{v}'")
     h, mi = int(m.group(1)), int(m.group(2))
     return (time(0, 0), extra + 1) if (h, mi) == (24, 0) else (time(h, mi), extra)
 
@@ -168,7 +169,7 @@ def parse_freq(v: str) -> set[int]:
         return {i for i, ch in enumerate(v) if ch.isdigit() and ch != "0"}
     days = {int(ch) - 1 for ch in v if ch in "1234567"}
     if not days:
-        raise ScheduleError(f"frequencia invalida '{v}'")
+        raise ScheduleError(f"frequência inválida '{v}'")
     return days
 
 
@@ -210,7 +211,7 @@ def load_flights(rows: list[list[str]], start: datetime, end: datetime, airports
     use_dates=False: o horario de cada voo e repetido em todos os dias da janela."""
     rows = [r for r in rows if any(str(c).strip() for c in r)]
     if len(rows) < 2:
-        raise ScheduleError("Malha vazia.")
+        raise ScheduleError("O arquivo da malha está vazio.")
     h, cols = find_header(rows)
     body = rows[h + 1:]
     airports = airports or load_airports()
@@ -275,9 +276,9 @@ def load_flights(rows: list[list[str]], start: datetime, end: datetime, airports
             })
     warnings = errors[:20]
     if len(errors) > 20:
-        warnings.append(f"... e mais {len(errors) - 20} linhas com erro")
+        warnings.append(f"... e mais {len(errors) - 20} linhas com erro.")
     if unknown:
-        warnings.append(f"Aeroportos fora de data/airports.csv (voos ignorados): {', '.join(sorted(unknown))}")
+        warnings.append(f"Aeroportos não cadastrados (voos ignorados): {', '.join(sorted(unknown))}.")
     flights.sort(key=lambda f: (f["std"], f["flight"]))
     return flights, warnings, "UTC" if utc else "local"
 

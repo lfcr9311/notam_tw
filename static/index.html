@@ -116,7 +116,7 @@
           <button data-span="2" class="on">±2h</button><button data-span="24">24h</button>
         </div>
         <select id="location"></select>
-        <button id="fetch">Consultar API</button>
+        <button id="fetch">Consultar previsão</button>
       </div>
     </div>
     <div class="body" id="out"></div>
@@ -126,7 +126,7 @@
     <div class="card-head">
       <div>
         <h2>Voos impactados por chuva</h2>
-        <p>Malha: CSV do Market Constraints ou .xlsx SSIM. Voos de D+7 a D+15 com Dep ou Arv em Belém ou Salvador: o horário do voo é conferido na previsão da base, em cada dia — chuva ou pista molhada na hora do voo, 1h antes ou 1h depois. 1 request por base; a previsão fica 1h em cache.</p>
+        <p>Envie a malha de voos (Market Constraints). Voos de D+7 a D+15 com partida (Dep) ou chegada (Arv) em Belém ou Salvador são conferidos na previsão: chuva ou pista molhada na hora do voo, 1h antes ou 1h depois.</p>
       </div>
       <div class="controls">
         <label class="file">
@@ -176,7 +176,7 @@ $("fetch").onclick = async () => {
   } catch (err) {
     out.replaceChildren(errBox(err.message));
   } finally {
-    btn.disabled = false; btn.textContent = "Consultar API";
+    btn.disabled = false; btn.textContent = "Consultar previsão";
   }
 };
 
@@ -185,7 +185,7 @@ let span = 2, lastHourly = null;
 for (const b of $("span").querySelectorAll("button")) b.onclick = () => {
   span = Number(b.dataset.span);
   for (const o of $("span").querySelectorAll("button")) o.classList.toggle("on", o === b);
-  if (lastHourly) $("out").replaceChildren(table(lastHourly));  // sem nova request
+  if (lastHourly) $("out").replaceChildren(table(lastHourly));  // reaproveita a última previsão
 };
 
 // h.tags vem do servidor (impact.conditions): chuva, chuva forte, pista molhada
@@ -227,7 +227,7 @@ $("malha").onchange = async () => {
     const active = p.bases.filter(b => b.dep.length + b.arv.length);
     const names = l => l.length ? `${l.length}: ${l.join(", ")}` : "—";
     const kids = [el("div", { className: "pad meta",
-      textContent: `Horários conferidos em cada dia de ${fmtUtc(p.window.from)} a ${fmtUtc(p.window.to)} UTC (alcance da previsão) · horários da malha em ${p.basis}` })];
+      textContent: `Período analisado: ${fmtUtc(p.window.from)} a ${fmtUtc(p.window.to)} UTC` })];
     for (const w of p.warnings) kids.push(el("div", { className: "warn", textContent: w }));
     kids.push(el("div", { className: "bases" }, ...p.bases.map(b => el("div", { className: "base" },
       el("h3", {}, `${b.name} `, el("small", { textContent: b.icao })),
@@ -246,7 +246,7 @@ $("malha").onchange = async () => {
 
     if (active.length) {
       check.hidden = false;
-      check.textContent = `Verificar chuva (${p.impact_requests ? plural(p.impact_requests, "request") : "sem request, previsão em cache"})`;
+      check.textContent = "Verificar chuva";
     }
   } catch (err) {
     out.replaceChildren(errBox(err.message));
@@ -261,7 +261,7 @@ $("check").onclick = async () => {
   try {
     const r = await postMalha("api/flights/impact", file);
     box.replaceChildren(...impactView(r));
-    btn.textContent = "Verificar chuva (previsão em cache)";
+    btn.textContent = "Verificar chuva";
   } catch (err) {
     box.replaceChildren(errBox(err.message));
     btn.textContent = label;
@@ -291,11 +291,10 @@ async function downloadPdf(btn) {
 
 function impactView(r) {
   const n = r.impacted.length;
-  const used = r.requests ? `${plural(r.requests, "request")} gasto${r.requests === 1 ? "" : "s"}` : "previsão do cache, nenhum request";
   const pdf = el("button", { className: "ghost", textContent: "Baixar PDF", onclick: () => downloadPdf(pdf) });
   const info = el("div", { className: "pad row" }, el("div", { className: "meta" },
     el("b", { textContent: `${plural(n, "voo")} impactado${n === 1 ? "" : "s"}` }),
-    `${r.bases.map(b => b.name).join(" e ")} · ${used}`), pdf);
+    r.bases.map(b => b.name).join(" e ")), pdf);
   if (!n) return [info, el("div", { className: "empty", textContent: "Nenhum voo parte ou chega nas bases em horário com chuva ou pista molhada." })];
   const rows = [];
   let day = null;

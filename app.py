@@ -1,5 +1,6 @@
 import asyncio
 import json
+import logging
 import os
 import time
 from pathlib import Path
@@ -17,6 +18,7 @@ from report import build_pdf
 from sources import fetch_tomorrow_timelines
 
 load_dotenv()
+log = logging.getLogger("notam_tw")
 
 BASE = Path(__file__).parent
 app = FastAPI(title="NOTAM TW PoC")
@@ -47,12 +49,17 @@ async def get_forecast(location: str) -> tuple[dict, bool]:
         return _cache[location][1], True
     try:
         raw = await fetch_tomorrow_timelines(location, list(FIELDS.values()))
-    except RuntimeError as e:
-        raise HTTPException(500, str(e))
+    except RuntimeError as e:  # chave da Tomorrow.io ausente
+        log.error("Previsão: %s", e)
+        raise HTTPException(500, "Serviço de previsão indisponível no momento.")
     except httpx.HTTPStatusError as e:
-        raise HTTPException(e.response.status_code, f"Tomorrow.io: {e.response.text[:300]}")
+        log.error("Tomorrow.io %s: %s", e.response.status_code, e.response.text[:500])
+        if e.response.status_code == 429:
+            raise HTTPException(429, "Limite de consultas à previsão atingido. Tente novamente mais tarde.")
+        raise HTTPException(502, "Não foi possível obter a previsão. Tente novamente em alguns minutos.")
     except httpx.HTTPError as e:
-        raise HTTPException(502, f"Falha ao contatar Tomorrow.io: {e}")
+        log.error("Tomorrow.io inacessível: %s", e)
+        raise HTTPException(502, "Não foi possível obter a previsão. Tente novamente em alguns minutos.")
     data = extract_forecast(raw)
     for h in data["hourly"]:
         h["tags"] = conditions(h)
@@ -82,7 +89,7 @@ def locations():
 async def forecast(location: str = Query(..., description="ID da location (uma das chaves de LOCATIONS)")):
     """Previsão de 360h da base (1 request do limite, ou nenhum se estiver no cache)."""
     if location not in LOCATIONS:
-        raise HTTPException(400, "location deve ser o ID de uma das bases cadastradas")
+        raise HTTPException(400, "Base não cadastrada.")
     data, hit = await get_forecast(location)
     return {**data, "cached": hit}
 
@@ -104,9 +111,9 @@ async def _schedule(request: Request, filename: str) -> dict:
     """Le a malha enviada como corpo cru (fetch(url, {body: file})) e monta os registros."""
     data = await request.body()
     if not data:
-        raise HTTPException(400, "Arquivo vazio")
+        raise HTTPException(400, "O arquivo está vazio.")
     if len(data) > MAX_UPLOAD:
-        raise HTTPException(413, "Arquivo maior que 20 MB")
+        raise HTTPException(413, "O arquivo é maior que 20 MB.")
     try:
         return build_payload(data, filename or "malha.xlsx")  # janela D7-D15
     except ScheduleError as e:

@@ -100,7 +100,7 @@ def test_le_xlsx():
 
 
 def test_coluna_faltando():
-    with pytest.raises(flights.ScheduleError, match="Colunas obrigatorias"):
+    with pytest.raises(flights.ScheduleError, match="Colunas esperadas"):
         payload("Flt Desg;Dept Arp\nAD 1;VCP")
 
 
