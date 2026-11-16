@@ -54,6 +54,7 @@
   .tag.heavy { background: var(--b-heavy); color: var(--b-heavy-fg); }
   .tag.wet   { background: var(--b-wet);   color: var(--b-wet-fg); }
   .empty { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; color: var(--text-2); }
+  tr.margin td { color: var(--muted); }
   tr.day td { background: var(--surface-2); color: var(--text-2); font-weight: 600; font-size: .8rem; }
 </style>
 </head>
@@ -106,18 +107,24 @@ function conditions(h) {
 }
 
 function table(hourly) {
+  // horários com condição + MARGIN_H horas antes e depois de cada um (margem)
+  const MARGIN_H = 2;
+  const tagsAt = hourly.map(conditions);
+  const keep = tagsAt.map((t, i) => tagsAt.slice(Math.max(0, i - MARGIN_H), i + MARGIN_H + 1).some(t => t.length));
   const rows = [];
   let day = null;
-  for (const h of hourly) {
-    const tags = conditions(h);
-    if (!tags.length) continue; // só horários com alguma condição
+  hourly.forEach((h, i) => {
+    if (!keep[i]) return;
+    const tags = tagsAt[i];
     const d = fmtDay(h.time);
     if (d !== day) { day = d; rows.push(el("tr", { className: "day" }, el("td", { colSpan: 3, textContent: d }))); }
-    rows.push(el("tr", { className: h.rain_intensity >= 2.6 ? "rain" : "" },
+    rows.push(el("tr", { className: !tags.length ? "margin" : h.rain_intensity >= 2.6 ? "rain" : "" },
       el("td", { textContent: fmtHour(h.time) }),
-      el("td", { className: "cond" }, ...tags.map(([c, txt]) => el("span", { className: `tag ${c}`, textContent: txt }))),
+      el("td", { className: "cond" }, ...(tags.length
+        ? tags.map(([c, txt]) => el("span", { className: `tag ${c}`, textContent: txt }))
+        : ["—"])),
       el("td", { textContent: `${num(h.precipitation_probability, 0)} %` })));
-  }
+  });
   if (!rows.length) return el("div", { className: "empty", textContent: "Nenhum horário com chuva na previsão." });
   return el("div", { className: "wrap" }, el("table", {},
     el("thead", {}, el("tr", {}, ...["Horário", "Condições", "Prob. precipitação"].map(t => el("th", { textContent: t })))),
