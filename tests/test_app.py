@@ -25,6 +25,7 @@ EXPECTED_HOUR = {"time": "2026-11-13T12:00:00Z", "temperature": 28.1,
 
 @pytest.fixture(autouse=True)
 def no_network(monkeypatch):
+    app_module._cache.clear()
     def blocked(*a, **k):
         raise AssertionError("teste tentou chamar a Tomorrow.io")
     monkeypatch.setattr(app_module, "fetch_tomorrow_timelines", blocked)
@@ -61,4 +62,30 @@ def test_forecast_mocked(monkeypatch):
     monkeypatch.setattr(app_module, "fetch_tomorrow_timelines", fake_fetch)
     data = client.get("/api/forecast", params={"location": app_module.SALVADOR}).json()
     assert data["location"]["name"] == "Salvador"
-    assert data["hourly"] == [EXPECTED_HOUR]
+    assert data["hourly"] == [{**EXPECTED_HOUR, "tags": []}]
+
+
+def test_locations_tem_icao():
+    locs = {loc["name"]: loc["icao"] for loc in client.get("/api/locations").json()}
+    assert locs == {"Salvador": "SBSV", "Belém": "SBBE"}
+
+
+def test_forecast_devolve_icao(monkeypatch):
+    async def fake_fetch(location, fields):
+        return TIMELINES
+    monkeypatch.setattr(app_module, "fetch_tomorrow_timelines", fake_fetch)
+    data = client.get("/api/forecast", params={"location": app_module.BELEM}).json()
+    assert data["location"]["icao"] == "SBBE"
+
+
+def test_forecast_usa_cache(monkeypatch):
+    calls = []
+
+    async def fake_fetch(location, fields):
+        calls.append(location)
+        return TIMELINES
+    monkeypatch.setattr(app_module, "fetch_tomorrow_timelines", fake_fetch)
+    first = client.get("/api/forecast", params={"location": app_module.SALVADOR}).json()
+    second = client.get("/api/forecast", params={"location": app_module.SALVADOR}).json()
+    assert calls == [app_module.SALVADOR]
+    assert (first["cached"], second["cached"]) == (False, True)

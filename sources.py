@@ -33,3 +33,4 @@ async def fetch_tomorrow_timelines(location: str, fields: list[str]) -> dict:
         )
     resp.raise_for_status()
     return resp.json()
+

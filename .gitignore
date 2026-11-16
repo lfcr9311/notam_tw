@@ -1,3 +1,7 @@
 .env
 .venv/
 __pycache__/
+
+# malhas de voo enviadas pelo usuario (o repo e publico); so a tabela de aeroportos vai pro git
+data/*
+!data/airports.csv

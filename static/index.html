@@ -16,6 +16,7 @@
     --b-rain: #c9defa; --b-rain-fg: #0f4489;
     --b-heavy: #1f5fbf; --b-heavy-fg: #ffffff;
     --b-wet: #fff1d6; --b-wet-fg: #8a5300;
+    --b-leg: #eef1f5; --b-leg-fg: #4a5563;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
@@ -27,47 +28,110 @@
       --b-rain: #1d3a5f; --b-rain-fg: #c4dcfa;
       --b-heavy: #3987e5; --b-heavy-fg: #0d1117;
       --b-wet: #3a2a0e; --b-wet-fg: #f5c46b;
+      --b-leg: #222934; --b-leg-fg: #b7c0cc;
     }
   }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.45 Inter, system-ui, sans-serif; }
-  main { max-width: 900px; margin: 0 auto; padding: 28px 16px 48px; }
-  h1 { font-size: 1.5rem; margin: 0 0 16px; }
+  main { max-width: 1040px; margin: 0 auto; padding: 28px 16px 56px; display: grid; gap: 20px; }
+  h1 { font-size: 1.5rem; margin: 0; }
   h1 span { color: var(--accent); }
 
-  .toolbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
-  select { font: inherit; font-weight: 500; color: var(--text); background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; min-width: 170px; cursor: pointer; }
+  /* blocos */
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+  .card-head { display: flex; gap: 12px 16px; align-items: center; justify-content: space-between; flex-wrap: wrap; padding: 16px 18px; }
+  .card-head h2 { font-size: 1.05rem; margin: 0; }
+  .card-head p { margin: 4px 0 0; color: var(--text-2); font-size: .85rem; max-width: 560px; }
+  .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .body:empty { display: none; }
+  .body { border-top: 1px solid var(--line); }
+  .pad { padding: 14px 18px; }
+  .meta { color: var(--muted); font-size: .8rem; }
+  .meta b { color: var(--text); font-size: .95rem; font-weight: 600; margin-right: 6px; }
+
+  select, .file { font: inherit; font-weight: 500; color: var(--text); background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; }
+  select { min-width: 170px; cursor: pointer; }
+  .file { cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+  .file input { display: none; }
+  .file-name { color: var(--text-2); font-size: .85rem; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   button { border: 0; background: var(--accent); color: #fff; font: inherit; font-weight: 600; padding: 9px 18px; border-radius: 10px; cursor: pointer; }
   button:disabled { opacity: .6; cursor: wait; }
-  .err { background: var(--err-bg); color: var(--err-fg); padding: 12px 14px; border-radius: 10px; margin-bottom: 16px; }
 
-  .wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+  .err, .warn { padding: 10px 14px; border-radius: 10px; font-size: .9rem; margin: 14px 18px; }
+  .err { background: var(--err-bg); color: var(--err-fg); }
+  .warn { background: var(--b-wet); color: var(--b-wet-fg); font-size: .85rem; }
+  .empty { padding: 18px; color: var(--text-2); }
+
+  /* bases da malha */
+  .bases { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; padding: 0 18px 14px; }
+  .base { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; background: var(--surface-2); }
+  .base h3 { margin: 0 0 8px; font-size: .95rem; }
+  .base h3 small { color: var(--muted); font-weight: 500; }
+  .base dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; font-size: .85rem; }
+  .base dt { color: var(--muted); }
+  .base dd { margin: 0; color: var(--text-2); }
+
+  /* tabelas */
+  .scroll { overflow-x: auto; }
+  .scroll.tall { max-height: 420px; }
   table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: .9rem; }
-  th, td { padding: 9px 14px; text-align: right; border-bottom: 1px solid var(--grid); white-space: nowrap; }
-  th:first-child, td:first-child { text-align: left; }
-  th { position: sticky; top: 0; background: var(--surface); color: var(--muted); font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
-  tr.rain td { background: color-mix(in srgb, var(--rain) 9%, transparent); }
+  th, td { padding: 9px 12px; text-align: left; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+  th:first-child, td:first-child { padding-left: 18px; }
+  th:last-child, td:last-child { padding-right: 18px; text-align: right; }
+  th { position: sticky; top: 0; background: var(--surface); color: var(--muted); font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+  tbody tr:last-child td { border-bottom: 0; }
+  tr.rain td { background: color-mix(in srgb, var(--rain) 8%, transparent); }
   tr.rain td:first-child { box-shadow: inset 3px 0 var(--rain); }
-  td.cond { text-align: left; }
+  tr.margin td { color: var(--muted); }
+  tr.day td, tr.day td:last-child { background: var(--surface-2); color: var(--text-2); font-weight: 600; font-size: .78rem; text-transform: capitalize; text-align: left; }
+  td.tags { white-space: normal; min-width: 330px; }
+  .tag { white-space: nowrap; }
+  td.sub { color: var(--text-2); }
+  td.sub b { color: var(--text); font-weight: 500; margin-right: 4px; }
   .tag { display: inline-block; padding: 2px 8px; margin: 1px 4px 1px 0; border-radius: 999px; font-size: .75rem; font-weight: 600; }
   .tag.rain  { background: var(--b-rain);  color: var(--b-rain-fg); }
   .tag.heavy { background: var(--b-heavy); color: var(--b-heavy-fg); }
   .tag.wet   { background: var(--b-wet);   color: var(--b-wet-fg); }
-  .empty { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; color: var(--text-2); }
-  tr.margin td { color: var(--muted); }
-  tr.day td { background: var(--surface-2); color: var(--text-2); font-weight: 600; font-size: .8rem; }
+  .tag.leg   { background: var(--b-leg);   color: var(--b-leg-fg); margin-right: 6px; }
+
+  details summary { cursor: pointer; color: var(--text-2); font-size: .85rem; padding: 12px 18px; }
+  details[open] summary { border-bottom: 1px solid var(--line); }
 </style>
 </head>
 <body>
 <main>
   <h1>NOTAM <span>TW</span></h1>
 
-  <div class="toolbar">
-    <select id="location"></select>
-    <button id="fetch">Consultar API</button>
-  </div>
+  <section class="card">
+    <div class="card-head">
+      <h2>Previsão por base</h2>
+      <div class="controls">
+        <select id="location"></select>
+        <button id="fetch">Consultar API</button>
+      </div>
+    </div>
+    <div class="body" id="out"></div>
+  </section>
 
-  <div id="out"></div>
+  <section class="card">
+    <div class="card-head">
+      <div>
+        <h2>Voos impactados por chuva</h2>
+        <p>Malha: CSV do Market Constraints ou .xlsx SSIM. O horário de cada voo com Dep ou Arv em Belém ou Salvador é conferido na previsão de 360h da base, em cada dia: chuva ou pista molhada na hora do voo, 1h antes ou 1h depois. 1 request por base; a previsão fica 1h em cache.</p>
+      </div>
+      <div class="controls">
+        <label class="file">
+          <input type="file" id="malha" accept=".xlsx,.xlsm,.csv">
+          <span id="malha-label">Escolher malha</span>
+        </label>
+        <span class="file-name" id="malha-name"></span>
+        <button id="check" hidden>Verificar chuva</button>
+      </div>
+    </div>
+    <div class="body" id="fout"></div>
+    <div class="body" id="impact"></div>
+    <div class="body" id="flist"></div>
+  </section>
 </main>
 
 <script>
@@ -76,12 +140,21 @@ const el = (tag, props = {}, ...kids) => { const n = Object.assign(document.crea
 const num = (v, d) => v == null ? "—" : Number(v).toLocaleString("pt-BR", { minimumFractionDigits: d, maximumFractionDigits: d });
 const fmtHour = t => new Date(t).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 const fmtDay = t => new Date(t).toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit" });
+const fmtUtc = t => t.slice(8, 10) + "/" + t.slice(5, 7) + " " + t.slice(11, 16);
+const tagList = tags => tags.map(([c, txt]) => el("span", { className: `tag ${c}`, textContent: txt }));
+const plural = (n, w) => `${n} ${w}${n === 1 ? "" : "s"}`;
+const dayRow = (d, cols) => el("tr", { className: "day" }, el("td", { colSpan: cols, textContent: d }));
+const grid = (headers, rows, tall) => el("div", { className: "scroll" + (tall ? " tall" : "") }, el("table", {},
+  el("thead", {}, el("tr", {}, ...headers.map(t => el("th", { textContent: t })))),
+  el("tbody", {}, ...rows)));
+const errBox = msg => el("div", { className: "err", textContent: "Erro: " + msg });
 
 // value de cada option = ID da location na Tomorrow.io
 fetch("api/locations").then(r => r.json()).then(locs => {
   $("location").replaceChildren(...locs.map(l => el("option", { value: l.id, textContent: l.name })));
 });
 
+// ---------- previsão de uma base ----------
 $("fetch").onclick = async () => {
   const btn = $("fetch"), out = $("out");
   btn.disabled = true; btn.textContent = "Carregando…";
@@ -91,44 +164,117 @@ $("fetch").onclick = async () => {
     if (!r.ok) throw new Error(j.detail || r.statusText);
     out.replaceChildren(table(j.hourly));
   } catch (err) {
-    out.replaceChildren(el("div", { className: "err", textContent: "Erro: " + err.message }));
+    out.replaceChildren(errBox(err.message));
   } finally {
     btn.disabled = false; btn.textContent = "Consultar API";
   }
 };
 
-// Critérios (mm/h de intensidade de precipitação)
-function conditions(h) {
-  const i = h.rain_intensity, tags = [];
-  if (i >= 10) tags.push(["heavy", "Chuva forte"]);
-  else if (i >= 2.6) tags.push(["rain", "Chuva"]);
-  if (i > 3) tags.push(["wet", "Possibilidade de pista molhada"]);
-  return tags;
-}
-
+// h.tags vem do servidor (impact.conditions): chuva, chuva forte, pista molhada
 function table(hourly) {
   // horários com condição + MARGIN_H horas antes e depois de cada um (margem)
   const MARGIN_H = 2;
-  const tagsAt = hourly.map(conditions);
-  const keep = tagsAt.map((t, i) => tagsAt.slice(Math.max(0, i - MARGIN_H), i + MARGIN_H + 1).some(t => t.length));
+  const keep = hourly.map((_, i) => hourly.slice(Math.max(0, i - MARGIN_H), i + MARGIN_H + 1).some(h => h.tags.length));
   const rows = [];
   let day = null;
   hourly.forEach((h, i) => {
     if (!keep[i]) return;
-    const tags = tagsAt[i];
     const d = fmtDay(h.time);
-    if (d !== day) { day = d; rows.push(el("tr", { className: "day" }, el("td", { colSpan: 3, textContent: d }))); }
-    rows.push(el("tr", { className: !tags.length ? "margin" : h.rain_intensity >= 2.6 ? "rain" : "" },
+    if (d !== day) { day = d; rows.push(dayRow(d, 3)); }
+    rows.push(el("tr", { className: !h.tags.length ? "margin" : h.rain_intensity >= 2.6 ? "rain" : "" },
       el("td", { textContent: fmtHour(h.time) }),
-      el("td", { className: "cond" }, ...(tags.length
-        ? tags.map(([c, txt]) => el("span", { className: `tag ${c}`, textContent: txt }))
-        : ["—"])),
+      el("td", { className: "tags" }, ...(h.tags.length ? tagList(h.tags) : ["—"])),
       el("td", { textContent: `${num(h.precipitation_probability, 0)} %` })));
   });
   if (!rows.length) return el("div", { className: "empty", textContent: "Nenhum horário com chuva na previsão." });
-  return el("div", { className: "wrap" }, el("table", {},
-    el("thead", {}, el("tr", {}, ...["Horário", "Condições", "Prob. precipitação"].map(t => el("th", { textContent: t })))),
-    el("tbody", {}, ...rows)));
+  return grid(["Horário", "Condições", "Prob. precipitação"], rows);
+}
+
+// ---------- malha x previsão das bases ----------
+const postMalha = (path, file) => fetch(path, {
+  method: "POST", body: file,
+  headers: { "content-type": "application/octet-stream", "x-filename": encodeURIComponent(file.name) },
+}).then(async r => { const j = await r.json(); if (!r.ok) throw new Error(j.detail || r.statusText); return j; });
+
+$("malha").onchange = async () => {
+  const file = $("malha").files[0], out = $("fout"), check = $("check");
+  $("malha-label").textContent = file ? "Trocar malha" : "Escolher malha";
+  $("malha-name").textContent = file ? file.name : "";
+  check.hidden = true;
+  $("impact").replaceChildren();
+  $("flist").replaceChildren();
+  if (!file) return out.replaceChildren();
+  out.replaceChildren(el("div", { className: "pad meta", textContent: "Lendo a malha…" }));
+  try {
+    const p = await postMalha("api/flights/preview", file);
+    const active = p.bases.filter(b => b.dep.length + b.arv.length);
+    const names = l => l.length ? `${l.length}: ${l.join(", ")}` : "—";
+    const kids = [el("div", { className: "pad meta",
+      textContent: `Horários conferidos em cada dia de ${fmtUtc(p.window.from)} a ${fmtUtc(p.window.to)} UTC (alcance da previsão) · horários da malha em ${p.basis}` })];
+    for (const w of p.warnings) kids.push(el("div", { className: "warn", textContent: w }));
+    kids.push(el("div", { className: "bases" }, ...p.bases.map(b => el("div", { className: "base" },
+      el("h3", {}, `${b.name} `, el("small", { textContent: b.icao })),
+      el("dl", {},
+        el("dt", { textContent: "Dep" }), el("dd", { textContent: names(b.dep) }),
+        el("dt", { textContent: "Arv" }), el("dd", { textContent: names(b.arv) }))))));
+    if (!active.length) kids.push(el("div", { className: "empty", textContent: "Nenhum voo da malha parte (Dep) ou chega (Arv) em Belém ou Salvador." }));
+    out.replaceChildren(...kids);
+
+    const shown = p.flights.slice(0, 200);
+    if (shown.length) $("flist").replaceChildren(el("details", {},
+      el("summary", { textContent: `Ver voos da malha${p.count > shown.length ? ` (primeiros ${shown.length})` : ""}` }),
+      grid(["Voo", "Origem", "Destino", "Partida (UTC)", "Chegada (UTC)", "Aeronave"],
+        shown.map(f => el("tr", {}, ...[f.flight, f.dep, f.arr, fmtUtc(f.std), fmtUtc(f.sta), f.aircraft || "—"]
+          .map(t => el("td", { textContent: t })))), true)));
+
+    if (active.length) {
+      check.hidden = false;
+      check.textContent = `Verificar chuva (${p.impact_requests ? plural(p.impact_requests, "request") : "sem request, previsão em cache"})`;
+    }
+  } catch (err) {
+    out.replaceChildren(errBox(err.message));
+  }
+};
+
+$("check").onclick = async () => {
+  const file = $("malha").files[0], btn = $("check"), box = $("impact");
+  if (!file) return;
+  const label = btn.textContent;
+  btn.disabled = true; btn.textContent = "Consultando…";
+  try {
+    const r = await postMalha("api/flights/impact", file);
+    box.replaceChildren(...impactView(r));
+    btn.textContent = "Verificar chuva (previsão em cache)";
+  } catch (err) {
+    box.replaceChildren(errBox(err.message));
+    btn.textContent = label;
+  } finally {
+    btn.disabled = false;
+  }
+};
+
+function impactView(r) {
+  const n = r.impacted.length;
+  const used = r.requests ? `${plural(r.requests, "request")} gasto${r.requests === 1 ? "" : "s"}` : "previsão do cache, nenhum request";
+  const info = el("div", { className: "pad meta" },
+    el("b", { textContent: `${plural(n, "voo")} impactado${n === 1 ? "" : "s"}` }),
+    `${r.bases.map(b => b.name).join(" e ")} · ${used}`);
+  if (!n) return [info, el("div", { className: "empty", textContent: "Nenhum voo parte ou chega nas bases em horário com chuva ou pista molhada." })];
+  const rows = [];
+  let day = null;
+  for (const x of r.impacted) {
+    const d = fmtDay(x.time);
+    if (d !== day) { day = d; rows.push(dayRow(d, 6)); }
+    rows.push(el("tr", { className: x.rain_intensity >= 2.6 ? "rain" : "" },
+      el("td", { textContent: fmtHour(x.time) }),
+      el("td", { textContent: x.flight }),
+      el("td", { className: "sub" }, el("b", { textContent: x.airport + " " }),
+        el("span", { className: "tag leg", textContent: x.leg }), x.leg === "Dep" ? `→ ${x.other}` : `← ${x.other}`),
+      el("td", { className: "tags" }, ...tagList(x.tags)),
+      el("td", { className: "sub", textContent: x.hours.map(fmtHour).join(", ") }),
+      el("td", { textContent: `${num(x.precipitation_probability, 0)} %` })));
+  }
+  return [info, grid(["Horário", "Voo", "Base · Dep / Arv", "Condições", "Chuva às", "Prob. precipitação"], rows)];
 }
 </script>
 </body>

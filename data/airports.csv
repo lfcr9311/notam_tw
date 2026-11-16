@@ -1,0 +1,120 @@
+iata,icao,name,tz
+VCP,SBKP,Campinas Viracopos,America/Sao_Paulo
+GRU,SBGR,Sao Paulo Guarulhos,America/Sao_Paulo
+CGH,SBSP,Sao Paulo Congonhas,America/Sao_Paulo
+SDU,SBRJ,Rio de Janeiro Santos Dumont,America/Sao_Paulo
+GIG,SBGL,Rio de Janeiro Galeao,America/Sao_Paulo
+CNF,SBCF,Belo Horizonte Confins,America/Sao_Paulo
+PLU,SBBH,Belo Horizonte Pampulha,America/Sao_Paulo
+BSB,SBBR,Brasilia,America/Sao_Paulo
+CWB,SBCT,Curitiba,America/Sao_Paulo
+POA,SBPA,Porto Alegre,America/Sao_Paulo
+FLN,SBFL,Florianopolis,America/Sao_Paulo
+NVT,SBNF,Navegantes,America/Sao_Paulo
+JOI,SBJV,Joinville,America/Sao_Paulo
+SSA,SBSV,Salvador,America/Bahia
+REC,SBRF,Recife,America/Recife
+FOR,SBFZ,Fortaleza,America/Fortaleza
+NAT,SBSG,Natal Sao Goncalo do Amarante,America/Fortaleza
+MCZ,SBMO,Maceio,America/Maceio
+AJU,SBAR,Aracaju,America/Maceio
+JPA,SBJP,Joao Pessoa,America/Fortaleza
+THE,SBTE,Teresina,America/Fortaleza
+SLZ,SBSL,Sao Luis,America/Fortaleza
+BEL,SBBE,Belem,America/Belem
+MCP,SBMQ,Macapa,America/Belem
+MAB,SBMA,Maraba,America/Belem
+CKS,SBCJ,Carajas,America/Belem
+STM,SBSN,Santarem,America/Santarem
+ATM,SBHT,Altamira,America/Santarem
+ITB,SBIH,Itaituba,America/Santarem
+IMP,SBIZ,Imperatriz,America/Fortaleza
+PHB,SBPB,Parnaiba,America/Fortaleza
+JJD,SBJE,Jericoacoara,America/Fortaleza
+JDO,SBJU,Juazeiro do Norte,America/Fortaleza
+PNZ,SBPL,Petrolina,America/Recife
+FEN,SBFN,Fernando de Noronha,America/Noronha
+IOS,SBIL,Ilheus,America/Bahia
+BPS,SBPS,Porto Seguro,America/Bahia
+VDC,SBVC,Vitoria da Conquista,America/Bahia
+LEC,SBLE,Lencois,America/Bahia
+BRA,SNBR,Barreiras,America/Bahia
+TXF,SNTF,Teixeira de Freitas,America/Bahia
+MAO,SBEG,Manaus,America/Manaus
+TFF,SBTF,Tefe,America/Manaus
+PIN,SWPI,Parintins,America/Manaus
+BVB,SBBV,Boa Vista,America/Boa_Vista
+PVH,SBPV,Porto Velho,America/Porto_Velho
+JPR,SBJI,Ji-Parana,America/Porto_Velho
+OAL,SSKW,Cacoal,America/Porto_Velho
+RBR,SBRB,Rio Branco,America/Rio_Branco
+CZS,SBCZ,Cruzeiro do Sul,America/Rio_Branco
+CGB,SBCY,Cuiaba,America/Cuiaba
+OPS,SBSI,Sinop,America/Cuiaba
+ROO,SBRD,Rondonopolis,America/Cuiaba
+AFL,SBAT,Alta Floresta,America/Cuiaba
+CGR,SBCG,Campo Grande,America/Campo_Grande
+CMG,SBCR,Corumba,America/Campo_Grande
+DOU,SBDO,Dourados,America/Campo_Grande
+BYO,SBDB,Bonito,America/Campo_Grande
+PMW,SBPJ,Palmas,America/Araguaina
+GYN,SBGO,Goiania,America/Sao_Paulo
+VIX,SBVT,Vitoria,America/Sao_Paulo
+IGU,SBFI,Foz do Iguacu,America/Sao_Paulo
+LDB,SBLO,Londrina,America/Sao_Paulo
+MGF,SBMG,Maringa,America/Sao_Paulo
+CAC,SBCA,Cascavel,America/Sao_Paulo
+TOW,SBTD,Toledo,America/Sao_Paulo
+GPB,SBGU,Guarapuava,America/Sao_Paulo
+CXJ,SBCX,Caxias do Sul,America/Sao_Paulo
+PFB,SBPF,Passo Fundo,America/Sao_Paulo
+RIA,SBSM,Santa Maria,America/Sao_Paulo
+PET,SBPK,Pelotas,America/Sao_Paulo
+URG,SBUG,Uruguaiana,America/Sao_Paulo
+XAP,SBCH,Chapeco,America/Sao_Paulo
+CCM,SBCM,Criciuma,America/Sao_Paulo
+JJG,SBJA,Jaguaruna,America/Sao_Paulo
+LAJ,SBLJ,Lages,America/Sao_Paulo
+RAO,SBRP,Ribeirao Preto,America/Sao_Paulo
+SJP,SBSR,Sao Jose do Rio Preto,America/Sao_Paulo
+PPB,SBDN,Presidente Prudente,America/Sao_Paulo
+ARU,SBAU,Aracatuba,America/Sao_Paulo
+AQA,SBAQ,Araraquara,America/Sao_Paulo
+MII,SBML,Marilia,America/Sao_Paulo
+JTC,SBAE,Bauru-Arealva,America/Sao_Paulo
+SOD,SDCO,Sorocaba,America/Sao_Paulo
+SJK,SBSJ,Sao Jose dos Campos,America/Sao_Paulo
+UDI,SBUL,Uberlandia,America/Sao_Paulo
+UBA,SBUR,Uberaba,America/Sao_Paulo
+MOC,SBMK,Montes Claros,America/Sao_Paulo
+IPN,SBIP,Ipatinga,America/Sao_Paulo
+GVR,SBGV,Governador Valadares,America/Sao_Paulo
+VAG,SBVG,Varginha,America/Sao_Paulo
+CFB,SBCB,Cabo Frio,America/Sao_Paulo
+CAW,SBCP,Campos dos Goytacazes,America/Sao_Paulo
+CPV,SBKG,Campina Grande,America/Fortaleza
+IZA,SBZM,Juiz de Fora Zona da Mata,America/Sao_Paulo
+BVH,SBVH,Vilhena,America/Porto_Velho
+SMT,SBSO,Sorriso,America/Cuiaba
+TMT,SBTB,Porto Trombetas,America/Santarem
+TBT,SBTT,Tabatinga,America/Manaus
+OYK,SBOI,Oiapoque,America/Belem
+GNM,SNGI,Guanambi,America/Bahia
+GEL,SBNM,Santo Angelo,America/Sao_Paulo
+PMG,SBPP,Ponta Pora,America/Campo_Grande
+ARX,SBAC,Aracati,America/Fortaleza
+MVF,SBMS,Mossoro,America/Fortaleza
+SJL,SBUA,Sao Gabriel da Cachoeira,America/Manaus
+UNA,SBTC,Una-Comandatuba,America/Bahia
+PTO,SBPO,Pato Branco,America/Sao_Paulo
+RPU,SBUY,Coari Urucu,America/Manaus
+AGT,SGES,Ciudad del Este Guarani,America/Asuncion
+CUR,TNCC,Curacao Hato,America/Curacao
+EZE,SAEZ,Buenos Aires Ezeiza,America/Argentina/Buenos_Aires
+FLL,KFLL,Fort Lauderdale,America/New_York
+LIS,LPPT,Lisboa Humberto Delgado,Europe/Lisbon
+MCO,KMCO,Orlando,America/New_York
+MVD,SUMU,Montevideo Carrasco,America/Montevideo
+OPO,LPPR,Porto Francisco Sa Carneiro,Europe/Lisbon
+PDP,SULS,Punta del Este,America/Montevideo
+SCL,SCEL,Santiago Arturo Merino Benitez,America/Santiago
