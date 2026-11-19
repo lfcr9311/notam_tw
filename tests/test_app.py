@@ -26,6 +26,7 @@ EXPECTED_HOUR = {"time": "2026-11-13T12:00:00Z", "temperature": 28.1,
 @pytest.fixture(autouse=True)
 def no_network(monkeypatch):
     app_module._cache.clear()
+    monkeypatch.setattr(app_module, "FORECAST_FROM_DAY", 0)
     def blocked(*a, **k):
         raise AssertionError("teste tentou chamar a Tomorrow.io")
     monkeypatch.setattr(app_module, "fetch_tomorrow_timelines", blocked)
@@ -89,3 +90,18 @@ def test_forecast_usa_cache(monkeypatch):
     second = client.get("/api/forecast", params={"location": app_module.SALVADOR}).json()
     assert calls == [app_module.SALVADOR]
     assert (first["cached"], second["cached"]) == (False, True)
+
+
+def test_forecast_so_dias_8_a_14(monkeypatch):
+    monkeypatch.setattr(app_module, "FORECAST_FROM_DAY", 8)
+    from datetime import datetime, timedelta
+    t0 = datetime(2026, 11, 19)
+    iv = [{"startTime": (t0 + timedelta(hours=k)).strftime("%Y-%m-%dT%H:%M:%SZ"), "values": {"rainIntensity": 0}}
+          for k in range(360)]
+
+    async def fake_fetch(location, fields):
+        return {"data": {"timelines": [{"timestep": "1h", "intervals": iv}]}}
+    monkeypatch.setattr(app_module, "fetch_tomorrow_timelines", fake_fetch)
+    hourly = client.get("/api/forecast", params={"location": app_module.BELEM}).json()["hourly"]
+    assert len(hourly) == 360 - 8 * 24
+    assert (hourly[0]["time"], hourly[-1]["time"]) == ("2026-11-27T00:00:00Z", "2026-12-03T23:00:00Z")

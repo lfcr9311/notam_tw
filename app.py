@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import time
+from datetime import datetime, timedelta
 from pathlib import Path
 from urllib.parse import unquote
 
@@ -34,6 +35,8 @@ LOCATIONS = {
 
 # previsão de 360h de cada base fica em memória por FORECAST_CACHE_MIN minutos (padrão 60):
 # consultar a base de novo ou cruzar com a malha nesse intervalo não gasta request
+# aba de previsão mostra só de agora + FORECAST_FROM_DAY dias até o fim das 360h (dias 8 a 14)
+FORECAST_FROM_DAY = 8
 CACHE_SECONDS = 60 * int(os.getenv("FORECAST_CACHE_MIN", "60"))
 _cache: dict[str, tuple[float, dict]] = {}  # location id -> (instante da consulta, extract_forecast)
 
@@ -87,11 +90,19 @@ def locations():
 
 @app.get("/api/forecast")
 async def forecast(location: str = Query(..., description="ID da location (uma das chaves de LOCATIONS)")):
-    """Previsão de 360h da base (1 request do limite, ou nenhum se estiver no cache)."""
+    """Previsão da base de agora + 8 dias até 360h (1 request do limite, ou nenhum se estiver no cache)."""
     if location not in LOCATIONS:
         raise HTTPException(400, "Base não cadastrada.")
     data, hit = await get_forecast(location)
-    return {**data, "cached": hit}
+    hourly = data["hourly"]
+    if hourly:  # a previsão começa na hora atual
+        start = _dt(hourly[0]["time"]) + timedelta(days=FORECAST_FROM_DAY)
+        hourly = [h for h in hourly if _dt(h["time"]) >= start]
+    return {**data, "hourly": hourly, "cached": hit}
+
+
+def _dt(iso: str) -> datetime:
+    return datetime.fromisoformat(iso.replace("Z", "+00:00"))
 
 
 @app.post("/api/extract")
