@@ -1,6 +1,6 @@
 """Condicoes por hora da previsao e juncao (em memoria) dos voos da malha com elas.
 
-Voo impactado = Dep (partida) numa base com chuva/pista molhada na hora do STD, na hora anterior ou na
+Voo impactado = Dep (partida) numa base com chuva (leve, moderada ou forte)/pista molhada na hora do STD, na hora anterior ou na
 seguinte; ou Arv (chegada) numa base com condicao na hora do STA, na anterior ou na seguinte.
 """
 from datetime import datetime
@@ -8,7 +8,7 @@ from datetime import datetime
 HOUR = 3600
 
 # criterios em mm/h de intensidade de precipitacao
-RAIN, HEAVY_RAIN, WET_RUNWAY = 2.6, 10, 3
+DRIZZLE, LIGHT_RAIN, RAIN, HEAVY_RAIN, WET_RUNWAY = 0.1, 0.5, 2.6, 10, 3
 
 
 def conditions(hour: dict) -> list[list[str]]:
@@ -19,9 +19,18 @@ def conditions(hour: dict) -> list[list[str]]:
         tags.append(["heavy", "Chuva forte"])
     elif i >= RAIN:
         tags.append(["rain", "Chuva"])
+    elif i >= LIGHT_RAIN:
+        tags.append(["light", "Chuva leve"])
+    elif i >= DRIZZLE:
+        tags.append(["drizzle", "Chuvisco"])  # so informativo: nao impacta voo
     if i > WET_RUNWAY:
         tags.append(["wet", "Possibilidade de pista molhada"])
     return tags
+
+
+def relevant(tags: list[list[str]]) -> list[list[str]]:
+    """Condicoes que impactam voo (tudo menos chuvisco)."""
+    return [t for t in tags if t[0] != "drizzle"]
 
 
 def _epoch(iso: str) -> float:
@@ -32,13 +41,15 @@ MARGIN_H = 1  # horas antes e depois do horario do voo
 
 
 def _merge(found: list[tuple[dict, list]]) -> list[list[str]]:
-    """Junta as condicoes das horas da janela: chuva forte > chuva; pista molhada se houver em alguma."""
+    """Junta as condicoes das horas da janela: chuva forte > chuva > chuva leve; pista molhada se houver em alguma."""
     labels = {t[1]: t for _, tags in found for t in tags}
     out = []
     if "Chuva forte" in labels:
         out.append(labels["Chuva forte"])
     elif "Chuva" in labels:
         out.append(labels["Chuva"])
+    elif "Chuva leve" in labels:
+        out.append(labels["Chuva leve"])
     if "Possibilidade de pista molhada" in labels:
         out.append(labels["Possibilidade de pista molhada"])
     return out
@@ -48,7 +59,7 @@ def impacted(flights: list[dict], forecasts: dict[str, list[dict]]) -> list[dict
     """flights: voos de flights.load_flights (std/sta datetime UTC, dep/arr ICAO).
     forecasts: ICAO da base -> horas da previsao (extract_forecast()["hourly"])."""
     slots = {
-        icao: {int(_epoch(h["time"]) // HOUR): (h, tags) for h in hourly if (tags := conditions(h))}
+        icao: {int(_epoch(h["time"]) // HOUR): (h, tags) for h in hourly if (tags := relevant(conditions(h)))}
         for icao, hourly in forecasts.items()
     }
     out = []

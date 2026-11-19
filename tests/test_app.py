@@ -62,7 +62,7 @@ def test_forecast_mocked(monkeypatch):
     monkeypatch.setattr(app_module, "fetch_tomorrow_timelines", fake_fetch)
     data = client.get("/api/forecast", params={"location": app_module.SALVADOR}).json()
     assert data["location"]["name"] == "Salvador"
-    assert data["hourly"] == [{**EXPECTED_HOUR, "tags": []}]
+    assert data["hourly"] == [{**EXPECTED_HOUR, "tags": [["drizzle", "Chuvisco"]]}]
 
 
 def test_locations_tem_icao():

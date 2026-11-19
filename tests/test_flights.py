@@ -237,3 +237,26 @@ def test_relatorio_pdf(monkeypatch):
     assert r.status_code == 200 and r.headers["content-type"] == "application/pdf"
     assert r.content.startswith(b"%PDF")
     assert 'filename="voos-impactados-20261201.pdf"' in r.headers["content-disposition"]
+
+
+def test_chuva_leve():
+    from impact import _merge, conditions
+    label = lambda i: [t[1] for t in conditions({"rain_intensity": i})]
+    assert label(0.05) == []
+    assert label(0.4) == ["Chuvisco"]
+    assert label(0.5) == ["Chuva leve"]
+    assert label(2.59) == ["Chuva leve"]
+    assert label(2.6) == ["Chuva"]
+    assert label(3.5) == ["Chuva", "Possibilidade de pista molhada"]
+    found = [({}, [["light", "Chuva leve"]]), ({}, [["rain", "Chuva"]])]
+    assert [t[1] for t in _merge(found)] == ["Chuva"]
+
+
+def test_chuvisco_nao_impacta_voo():
+    from impact import impacted
+    t = datetime(2026, 12, 2, 10, 0, tzinfo=timezone.utc)
+    f = [{"flight": "AZU1", "dep": "SBBE", "arr": "SBKP", "std": t, "sta": t + timedelta(hours=3)}]
+    fc = {"SBBE": [{"time": "2026-12-02T10:00:00Z", "rain_intensity": 0.3, "precipitation_probability": 40}]}
+    assert impacted(f, fc) == []
+    fc["SBBE"][0]["rain_intensity"] = 0.6
+    assert [x["tags"] for x in impacted(f, fc)] == [[["light", "Chuva leve"]]]

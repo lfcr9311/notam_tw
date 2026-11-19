@@ -4,6 +4,8 @@ from datetime import datetime, timezone
 from fpdf import FPDF
 from fpdf.fonts import FontFace
 
+from impact import relevant
+
 UTC = timezone.utc
 ACCENT = (10, 78, 162)
 HEAD_BG = (238, 241, 245)
@@ -58,8 +60,8 @@ def build_pdf(*, impacted: list[dict], bases: list[dict], window: dict, filename
         f"Período: {start:%d/%m/%Y %H:%M} a {end:%d/%m/%Y %H:%M} UTC (D+7 a D+15) · "
         f"bases: {', '.join(f'{b['name']} ({b['icao']})' for b in bases)}",
         f"Malha: {filename} · gerado em {generated:%d/%m/%Y %H:%M} UTC · horários em UTC",
-        "Critério: horário do voo (Dep = partida, Arv = chegada na base), 1h antes ou 1h depois, com chuva "
-        "(>= 2,6 mm/h), chuva forte (>= 10 mm/h) ou possibilidade de pista molhada (> 3 mm/h).",
+        "Critério: horário do voo (Dep = partida, Arv = chegada na base), 1h antes ou 1h depois, com chuva leve "
+        "(>= 0,5 mm/h), chuva (>= 2,6 mm/h), chuva forte (>= 10 mm/h) ou possibilidade de pista molhada (> 3 mm/h).",
     ):
         pdf.multi_cell(0, 5, line, new_x="LMARGIN", new_y="NEXT")
 
@@ -83,7 +85,7 @@ def build_pdf(*, impacted: list[dict], bases: list[dict], window: dict, filename
     # 1. voos afetados
     title(f"Voos afetados ({len(impacted)})")
     if impacted:
-        table(["Data", "Horário", "Voo", "Base", "Dep / Arv", "Condições", "Chuva às", "Prob."],
+        table(["Data", "Horário", "Voo", "Base", "Dep / Arv", "Condições", "Chuva às", "Chance"],
               [[_day(x["time"]), _hour(x["time"]), x["flight"], x["airport"],
                 f"{x['leg']} {'->' if x['leg'] == 'Dep' else '<-'} {x['other']}", _tags(x["tags"]),
                 ", ".join(_hour(h) for h in x["hours"]), _pct(x["precipitation_probability"])]
@@ -97,13 +99,13 @@ def build_pdf(*, impacted: list[dict], bases: list[dict], window: dict, filename
 
     # 2. condicoes previstas em cada base no periodo
     for b in bases:
-        hours = [h for h in b["hourly"] if h["tags"] and start <= _dt(h["time"]) < end]
+        hours = [h for h in b["hourly"] if relevant(h["tags"]) and start <= _dt(h["time"]) < end]
         title(f"Condições previstas · {b['name']} ({b['icao']})")
         if not hours:
             pdf.set_font("helvetica", size=9)
             pdf.cell(0, 6, "Nenhum horário com chuva ou pista molhada no período.", new_x="LMARGIN", new_y="NEXT")
             continue
-        table(["Data", "Horário", "Condições", "Prob. precipitação"],
+        table(["Data", "Horário", "Condições", "Chance de chuva"],
               [[_day(h["time"]), _hour(h["time"]), _tags(h["tags"]), _pct(h["precipitation_probability"])]
                for h in hours],
               (30, 22, 120, 40),

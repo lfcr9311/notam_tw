@@ -9,274 +9,428 @@
 <style>
   :root {
     color-scheme: light;
-    --bg: #f3f5f8; --surface: #ffffff; --surface-2: #f7f8fa;
+    --bg: #f2f4f7; --surface: #ffffff; --surface-2: #f7f8fa; --surface-3: #eef1f5;
     --text: #0f1720; --text-2: #4a5563; --muted: #7b8594;
-    --line: #e4e8ee; --grid: #eef1f5; --accent: #0a4ea2; --rain: #2a78d6;
+    --line: #e3e7ed; --grid: #eef1f5;
+    --accent: #0a4ea2; --accent-2: #e8f0fb; --accent-fg: #ffffff; --rain: #2a78d6;
     --err-bg: #fde8e8; --err-fg: #8a1c1c;
+    --b-light: #e6f0fc; --b-light-fg: #3a6aa8;
     --b-rain: #c9defa; --b-rain-fg: #0f4489;
     --b-heavy: #1f5fbf; --b-heavy-fg: #ffffff;
     --b-wet: #fff1d6; --b-wet-fg: #8a5300;
-    --b-leg: #eef1f5; --b-leg-fg: #4a5563;
+    --chip: #eef1f5; --chip-fg: #334155;
+    --shadow: 0 1px 2px rgba(15, 23, 32, .04), 0 4px 16px rgba(15, 23, 32, .04);
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
       color-scheme: dark;
-      --bg: #0d1117; --surface: #161b22; --surface-2: #1c222b;
+      --bg: #0d1117; --surface: #161b22; --surface-2: #1b212a; --surface-3: #222934;
       --text: #eef1f5; --text-2: #b7c0cc; --muted: #8590a0;
-      --line: #2a313c; --grid: #222934; --accent: #3987e5; --rain: #3987e5;
+      --line: #2a313c; --grid: #222934;
+      --accent: #3987e5; --accent-2: #17273d; --accent-fg: #0d1117; --rain: #3987e5;
       --err-bg: #3a1616; --err-fg: #f3a5a5;
-      --b-rain: #1d3a5f; --b-rain-fg: #c4dcfa;
+      --b-light: #18263a; --b-light-fg: #9cbde6; --b-rain: #1d3a5f; --b-rain-fg: #c4dcfa;
       --b-heavy: #3987e5; --b-heavy-fg: #0d1117;
       --b-wet: #3a2a0e; --b-wet-fg: #f5c46b;
-      --b-leg: #222934; --b-leg-fg: #b7c0cc;
+      --chip: #222934; --chip-fg: #c8d0db;
+      --shadow: none;
     }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #0d1117; --surface: #161b22; --surface-2: #1b212a; --surface-3: #222934;
+    --text: #eef1f5; --text-2: #b7c0cc; --muted: #8590a0;
+    --line: #2a313c; --grid: #222934;
+    --accent: #3987e5; --accent-2: #17273d; --accent-fg: #0d1117; --rain: #3987e5;
+    --err-bg: #3a1616; --err-fg: #f3a5a5;
+    --b-light: #18263a; --b-light-fg: #9cbde6; --b-rain: #1d3a5f; --b-rain-fg: #c4dcfa;
+    --b-heavy: #3987e5; --b-heavy-fg: #0d1117;
+    --b-wet: #3a2a0e; --b-wet-fg: #f5c46b;
+    --chip: #222934; --chip-fg: #c8d0db;
+    --shadow: none;
   }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.45 Inter, system-ui, sans-serif; }
-  main { max-width: 1040px; margin: 0 auto; padding: 28px 16px 56px; display: grid; gap: 20px; }
-  h1 { font-size: 1.5rem; margin: 0; }
-  h1 span { color: var(--accent); }
+  [hidden] { display: none !important; }
+  svg { flex: none; }
+
+  /* topo */
+  header { background: var(--surface); border-bottom: 1px solid var(--line); }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+  .brand { display: flex; align-items: center; gap: 12px; padding: 18px 0 14px; }
+  .logo { width: 38px; height: 38px; border-radius: 10px; background: var(--accent); color: var(--accent-fg); display: grid; place-items: center; }
+  .brand h1 { font-size: 1.15rem; margin: 0; letter-spacing: -.01em; }
+  .brand p { margin: 0; color: var(--muted); font-size: .82rem; }
+  nav { display: flex; gap: 4px; }
+  nav button { background: none; border: 0; border-bottom: 2px solid transparent; border-radius: 0; color: var(--text-2); font: inherit; font-weight: 500; padding: 10px 12px; cursor: pointer; display: inline-flex; gap: 8px; align-items: center; }
+  nav button:hover { color: var(--text); }
+  nav button.on { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+
+  main.wrap { padding: 24px 16px 56px; }
+  .panel { display: grid; gap: 18px; }
+
+  /* etapas */
+  .step { display: flex; align-items: center; gap: 10px; margin: 6px 0 -6px; }
+  .step span { width: 24px; height: 24px; border-radius: 50%; background: var(--accent-2); color: var(--accent); font-size: .78rem; font-weight: 700; display: grid; place-items: center; }
+  .step h2 { font-size: 1rem; margin: 0; }
+  .step small { color: var(--muted); font-size: .82rem; margin-left: auto; }
 
   /* blocos */
-  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
-  .card-head { display: flex; gap: 12px 16px; align-items: center; justify-content: space-between; flex-wrap: wrap; padding: 16px 18px; }
-  .card-head h2 { font-size: 1.05rem; margin: 0; }
-  .card-head p { margin: 4px 0 0; color: var(--text-2); font-size: .85rem; max-width: 560px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; }
+  .card-head { display: flex; gap: 12px 16px; align-items: center; justify-content: space-between; flex-wrap: wrap; padding: 14px 18px; border-bottom: 1px solid var(--line); }
+  .card-head h3 { font-size: .95rem; margin: 0; }
+  .card-head p { margin: 2px 0 0; color: var(--muted); font-size: .82rem; }
   .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-  .body:empty { display: none; }
-  .body { border-top: 1px solid var(--line); }
-  .pad { padding: 14px 18px; }
-  .meta { color: var(--muted); font-size: .8rem; }
-  .meta b { color: var(--text); font-size: .95rem; font-weight: 600; margin-right: 6px; }
+  .pad { padding: 16px 18px; }
+  .lead { margin: 0 0 14px; color: var(--text-2); font-size: .9rem; max-width: 720px; }
 
-  select, .file { font: inherit; font-weight: 500; color: var(--text); background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; }
-  select { min-width: 170px; cursor: pointer; }
-  .file { cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
-  .file input { display: none; }
-  .file-name { color: var(--text-2); font-size: .85rem; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  button { border: 0; background: var(--accent); color: #fff; font: inherit; font-weight: 600; padding: 9px 18px; border-radius: 10px; cursor: pointer; }
+  /* botoes */
+  button.primary, .ghost { font: inherit; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+  button.primary { border: 0; background: var(--accent); color: var(--accent-fg); font-weight: 600; padding: 9px 18px; }
+  .ghost { background: var(--surface); color: var(--text); border: 1px solid var(--line); font-weight: 500; padding: 8px 14px; }
+  .ghost:hover { background: var(--surface-2); }
   button:disabled { opacity: .6; cursor: wait; }
-  button.ghost { background: var(--surface); color: var(--text); border: 1px solid var(--line); font-weight: 500; padding: 8px 14px; }
-  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
-  .seg button { background: var(--surface); color: var(--text-2); border-radius: 0; font-weight: 500; padding: 8px 12px; }
-  .seg button + button { border-left: 1px solid var(--line); }
-  .seg button.on { background: var(--accent); color: #fff; }
-  .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .seg { display: inline-flex; background: var(--surface-3); border-radius: 10px; padding: 3px; gap: 2px; }
+  .seg button { background: none; border: 0; color: var(--text-2); font: inherit; font-weight: 500; font-size: .9rem; padding: 6px 12px; border-radius: 8px; cursor: pointer; }
+  .seg button.on { background: var(--surface); color: var(--text); font-weight: 600; box-shadow: 0 1px 2px rgba(15, 23, 32, .12); }
+  .seg-label { color: var(--muted); font-size: .8rem; margin-right: -4px; }
 
-  .err, .warn { padding: 10px 14px; border-radius: 10px; font-size: .9rem; margin: 14px 18px; }
-  .err { background: var(--err-bg); color: var(--err-fg); }
-  .warn { background: var(--b-wet); color: var(--b-wet-fg); font-size: .85rem; }
-  .empty { padding: 18px; color: var(--text-2); }
+  /* envio da malha */
+  .drop { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; border: 1.5px dashed var(--line); border-radius: 12px; padding: 26px 16px; background: var(--surface-2); color: var(--text-2); cursor: pointer; transition: border-color .15s, background .15s; }
+  .drop:hover, .drop.over { border-color: var(--accent); background: var(--accent-2); }
+  .drop b { color: var(--text); font-weight: 600; }
+  .drop small { color: var(--muted); }
+  .drop svg { color: var(--accent); margin-bottom: 4px; }
+  .file-input { display: none; }
+  .filebar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; background: var(--surface-2); }
+  .filebar .ico { width: 36px; height: 36px; border-radius: 9px; background: var(--accent-2); color: var(--accent); display: grid; place-items: center; }
+  .filebar .name { flex: 1; min-width: 160px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .filebar .name small { display: block; color: var(--muted); font-weight: 400; font-size: .8rem; }
+  .filebar label { cursor: pointer; }
+
+  /* resumo */
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+  .tile { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; box-shadow: var(--shadow); }
+  .tile .k { color: var(--muted); font-size: .78rem; font-weight: 500; }
+  .tile .v { font-size: 1.6rem; font-weight: 700; letter-spacing: -.02em; line-height: 1.2; margin-top: 4px; }
+  .tile .v small { font-size: .85rem; font-weight: 500; color: var(--muted); margin-left: 4px; letter-spacing: 0; }
+  .tile.main { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+  .tile.main .k, .tile.main .v small { color: inherit; opacity: .8; }
+  .tile .period { font-size: .95rem; font-weight: 600; margin-top: 6px; }
 
   /* bases da malha */
-  .bases { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; padding: 0 18px 14px; }
-  .base { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; background: var(--surface-2); }
-  .base h3 { margin: 0 0 8px; font-size: .95rem; }
-  .base h3 small { color: var(--muted); font-weight: 500; }
-  .base dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; font-size: .85rem; }
-  .base dt { color: var(--muted); }
-  .base dd { margin: 0; color: var(--text-2); }
+  .bases { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+  .base .card-head { padding: 12px 16px; }
+  .base h3 small, .muted { color: var(--muted); font-weight: 500; }
+  .count { font-size: .78rem; color: var(--text-2); background: var(--chip); border-radius: 999px; padding: 2px 10px; font-weight: 600; }
+  .legs { padding: 12px 16px 14px; display: grid; gap: 10px; }
+  .leg-row { display: grid; grid-template-columns: 84px 1fr; gap: 10px; align-items: start; }
+  .leg-row .lbl { font-size: .8rem; color: var(--muted); padding-top: 3px; }
+  .leg-row .lbl b { display: block; color: var(--text); font-size: .85rem; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { background: var(--chip); color: var(--chip-fg); border-radius: 7px; padding: 3px 8px; font-size: .8rem; font-weight: 500; font-variant-numeric: tabular-nums; }
+
+  /* avisos */
+  .err, .warn { display: flex; gap: 10px; align-items: flex-start; padding: 11px 14px; border-radius: 10px; font-size: .9rem; }
+  .err { background: var(--err-bg); color: var(--err-fg); }
+  .warn { background: var(--b-wet); color: var(--b-wet-fg); font-size: .85rem; }
+  .empty { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; padding: 34px 18px; color: var(--text-2); }
+  .empty svg { color: var(--muted); }
+  .loading { padding: 18px; color: var(--muted); font-size: .9rem; }
 
   /* tabelas */
   .scroll { overflow-x: auto; }
-  .scroll.tall { max-height: 420px; }
+  .scroll.tall { max-height: min(70vh, 640px); }
   table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: .9rem; }
   th, td { padding: 9px 12px; text-align: left; border-bottom: 1px solid var(--grid); white-space: nowrap; }
   th:first-child, td:first-child { padding-left: 18px; }
   th:last-child, td:last-child { padding-right: 18px; text-align: right; }
-  th { position: sticky; top: 0; background: var(--surface); color: var(--muted); font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+  th { position: sticky; top: 0; z-index: 1; background: var(--surface-2); color: var(--muted); font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
   tbody tr:last-child td { border-bottom: 0; }
+  tbody tr:not(.day):hover td { background: var(--surface-2); }
   tr.rain td { background: color-mix(in srgb, var(--rain) 8%, transparent); }
   tr.rain td:first-child { box-shadow: inset 3px 0 var(--rain); }
   tr.margin td { color: var(--muted); }
-  tr.day td, tr.day td:last-child { background: var(--surface-2); color: var(--text-2); font-weight: 600; font-size: .78rem; text-transform: capitalize; text-align: left; }
+  tr.day td, tr.day td:last-child { background: var(--surface); color: var(--text); font-weight: 600; font-size: .8rem; text-align: left; padding-top: 14px; border-bottom: 1px solid var(--line); }
+  tr.day td::first-letter { text-transform: uppercase; }
   td.tags { white-space: normal; min-width: 330px; }
-  .tag { white-space: nowrap; }
+  td.time { font-weight: 600; }
+  td.flt { font-weight: 600; }
   td.sub { color: var(--text-2); }
-  td.sub b { color: var(--text); font-weight: 500; margin-right: 4px; }
-  .tag { display: inline-block; padding: 2px 8px; margin: 1px 4px 1px 0; border-radius: 999px; font-size: .75rem; font-weight: 600; }
+  td.sub b { color: var(--text); font-weight: 500; margin-right: 6px; }
+  .tag { display: inline-block; white-space: nowrap; padding: 2px 8px; margin: 1px 4px 1px 0; border-radius: 999px; font-size: .75rem; font-weight: 600; }
+  .tag.drizzle { background: var(--chip); color: var(--text-2); font-weight: 500; }
+  .tag.light { background: var(--b-light); color: var(--b-light-fg); }
   .tag.rain  { background: var(--b-rain);  color: var(--b-rain-fg); }
   .tag.heavy { background: var(--b-heavy); color: var(--b-heavy-fg); }
   .tag.wet   { background: var(--b-wet);   color: var(--b-wet-fg); }
-  .tag.leg   { background: var(--b-leg);   color: var(--b-leg-fg); margin-right: 6px; }
+  .tag.leg   { background: var(--chip);    color: var(--chip-fg); margin-right: 6px; }
 
-  details summary { cursor: pointer; color: var(--text-2); font-size: .85rem; padding: 12px 18px; }
-  details[open] summary { border-bottom: 1px solid var(--line); }
+  details > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 8px; padding: 13px 18px; color: var(--text-2); font-size: .9rem; font-weight: 500; }
+  details > summary::-webkit-details-marker { display: none; }
+  details > summary svg { transition: transform .15s; }
+  details[open] > summary svg { transform: rotate(90deg); }
+  details[open] > summary { border-bottom: 1px solid var(--line); }
+
+  @media (max-width: 640px) {
+    .card-head .controls { width: 100%; }
+    .leg-row { grid-template-columns: 1fr; gap: 4px; }
+    .step small { display: none; }
+    .tiles { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .tile { padding: 10px 12px; }
+    .tile .k { font-size: .7rem; }
+    .tile .v { font-size: 1.3rem; }
+    .tile .v small { display: none; }
+  }
 </style>
 </head>
 <body>
-<main>
-  <h1>NOTAM <span>TW</span></h1>
-
-  <section class="card">
-    <div class="card-head">
-      <h2>Previsão por base</h2>
-      <div class="controls">
-        <div class="seg" id="span" title="Horas exibidas">
-          <button data-span="2" class="on">±2h</button><button data-span="24">24h</button>
-        </div>
-        <select id="location"></select>
-        <button id="fetch">Consultar previsão</button>
-      </div>
-    </div>
-    <div class="body" id="out"></div>
-  </section>
-
-  <section class="card">
-    <div class="card-head">
+<header>
+  <div class="wrap">
+    <div class="brand">
+      <div class="logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 17H7a5 5 0 1 1 1.6-9.74A6 6 0 0 1 20 10.5 3.5 3.5 0 0 1 17.5 17Z"/><path d="M8 20l-1 2M12 20l-1 2M16 20l-1 2"/></svg></div>
       <div>
-        <h2>Voos impactados por chuva</h2>
-        <p>Envie a malha de voos (Market Constraints). Voos de D+7 a D+15 com partida (Dep) ou chegada (Arv) em Belém ou Salvador são conferidos na previsão: chuva ou pista molhada na hora do voo, 1h antes ou 1h depois.</p>
-      </div>
-      <div class="controls">
-        <label class="file">
-          <input type="file" id="malha" accept=".xlsx,.xlsm,.csv">
-          <span id="malha-label">Escolher malha</span>
-        </label>
-        <span class="file-name" id="malha-name"></span>
-        <button id="check" hidden>Verificar chuva</button>
+        <h1>NOTAM TW</h1>
+        <p>Chuva e pista molhada nas bases · Belém e Salvador</p>
       </div>
     </div>
-    <div class="body" id="fout"></div>
-    <div class="body" id="impact"></div>
-    <div class="body" id="flist"></div>
-  </section>
+    <nav id="tabs">
+      <button data-tab="voos" class="on">Voos impactados</button>
+      <button data-tab="prev">Previsão por base</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- ===== voos impactados ===== -->
+  <div class="panel" id="tab-voos">
+    <div class="step"><span>1</span><h2>Malha de voos</h2></div>
+    <section class="card pad">
+      <p class="lead">Envie a malha de voos (Market Constraints). Voos de D+7 a D+15 com partida (Dep) ou chegada (Arv) em Belém ou Salvador são conferidos na previsão: chuva ou pista molhada na hora do voo, 1h antes ou 1h depois.</p>
+      <input type="file" id="malha" class="file-input" accept=".xlsx,.xlsm,.csv">
+      <label class="drop" id="drop" for="malha">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M20 16v3a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-3"/></svg>
+        <b>Arraste a malha aqui ou clique para escolher</b>
+        <small>.csv ou .xlsx</small>
+      </label>
+      <div class="filebar" id="filebar" hidden>
+        <div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg></div>
+        <div class="name"><span id="malha-name"></span><small id="malha-size"></small></div>
+        <label class="ghost" for="malha">Trocar malha</label>
+        <button class="primary" id="check" hidden>Verificar chuva</button>
+      </div>
+    </section>
+
+    <div id="fout" class="panel" hidden></div>
+    <div id="impact" class="panel" hidden></div>
+    <div id="flist" hidden></div>
+  </div>
+
+  <!-- ===== previsão por base ===== -->
+  <div class="panel" id="tab-prev" hidden>
+    <section class="card">
+      <div class="card-head">
+        <div>
+          <h3>Previsão por base</h3>
+          <p>Próximos 15 dias, hora a hora</p>
+        </div>
+        <div class="controls">
+          <div class="seg" id="location"></div>
+          <div class="seg" id="span" title="Horas exibidas">
+            <button data-span="2" class="on">±2h</button><button data-span="24">24h</button>
+          </div>
+          <button class="primary" id="fetch">Consultar previsão</button>
+        </div>
+      </div>
+      <div id="out"></div>
+    </section>
+  </div>
 </main>
 
 <script>
 const $ = id => document.getElementById(id);
 const el = (tag, props = {}, ...kids) => { const n = Object.assign(document.createElement(tag), props); n.append(...kids); return n; };
+const svg = d => { const s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  s.setAttribute("viewBox", "0 0 24 24"); s.setAttribute("width", 18); s.setAttribute("height", 18);
+  s.setAttribute("fill", "none"); s.setAttribute("stroke", "currentColor"); s.setAttribute("stroke-width", 2);
+  s.setAttribute("stroke-linecap", "round"); s.setAttribute("stroke-linejoin", "round");
+  s.innerHTML = d; return s; };
+const ICON = {
+  alert: '<circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  cloud: '<path d="M17.5 17H7a5 5 0 1 1 1.6-9.74A6 6 0 0 1 20 10.5 3.5 3.5 0 0 1 17.5 17Z"/>',
+  chevron: '<path d="M9 6l6 6-6 6"/>',
+  pdf: '<path d="M12 4v12M7 11l5 5 5-5"/><path d="M5 20h14"/>',
+};
 const num = (v, d) => v == null ? "—" : Number(v).toLocaleString("pt-BR", { minimumFractionDigits: d, maximumFractionDigits: d });
 const fmtHour = t => new Date(t).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 const fmtDay = t => new Date(t).toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit" });
 const fmtUtc = t => t.slice(8, 10) + "/" + t.slice(5, 7) + " " + t.slice(11, 16);
+const fmtSize = b => b < 1024 * 1024 ? `${Math.max(1, Math.round(b / 1024))} KB` : `${(b / 1024 / 1024).toFixed(1)} MB`;
 const tagList = tags => tags.map(([c, txt]) => el("span", { className: `tag ${c}`, textContent: txt }));
 const plural = (n, w) => `${n} ${w}${n === 1 ? "" : "s"}`;
 const dayRow = (d, cols) => el("tr", { className: "day" }, el("td", { colSpan: cols, textContent: d }));
 const grid = (headers, rows, tall) => el("div", { className: "scroll" + (tall ? " tall" : "") }, el("table", {},
   el("thead", {}, el("tr", {}, ...headers.map(t => el("th", { textContent: t })))),
   el("tbody", {}, ...rows)));
-const errBox = msg => el("div", { className: "err", textContent: "Erro: " + msg });
+const errBox = msg => el("div", { className: "err" }, svg(ICON.alert), el("span", { textContent: msg }));
+const emptyBox = (icon, msg) => el("div", { className: "empty" }, svg(icon), el("span", { textContent: msg }));
+const step = (n, title, aside) => el("div", { className: "step" }, el("span", { textContent: n }),
+  el("h2", { textContent: title }), aside ? el("small", { textContent: aside }) : "");
+const show = (node, ...kids) => { node.replaceChildren(...kids); node.hidden = !kids.length; };
 
-// value de cada option = ID da location na Tomorrow.io
-fetch("api/locations").then(r => r.json()).then(locs => {
-  $("location").replaceChildren(...locs.map(l => el("option", { value: l.id, textContent: l.name })));
-});
+// ---------- abas ----------
+for (const b of $("tabs").querySelectorAll("button")) b.onclick = () => {
+  for (const o of $("tabs").querySelectorAll("button")) {
+    o.classList.toggle("on", o === b);
+    $("tab-" + o.dataset.tab).hidden = o !== b;
+  }
+};
 
 // ---------- previsão de uma base ----------
+// data-id de cada botão = ID da location na Tomorrow.io
+let loc = null, span = 2, lastHourly = null;
+const idle = () => $("out").replaceChildren(emptyBox(ICON.cloud, "Escolha a base e clique em Consultar previsão."));
+idle();
+fetch("api/locations").then(r => r.json()).then(locs => {
+  loc = locs[0]?.id;
+  $("location").replaceChildren(...locs.map(l => el("button", {
+    textContent: l.name, className: l.id === loc ? "on" : "", onclick: e => {
+      loc = l.id; lastHourly = null; idle();
+      for (const o of $("location").children) o.classList.toggle("on", o === e.currentTarget);
+    } })));
+});
+
 $("fetch").onclick = async () => {
   const btn = $("fetch"), out = $("out");
+  if (!loc) return;
   btn.disabled = true; btn.textContent = "Carregando…";
   try {
-    const r = await fetch(`api/forecast?location=${encodeURIComponent($("location").value)}`);
+    const r = await fetch(`api/forecast?location=${encodeURIComponent(loc)}`);
     const j = await r.json();
     if (!r.ok) throw new Error(j.detail || r.statusText);
     lastHourly = j.hourly;
     out.replaceChildren(table(j.hourly));
   } catch (err) {
-    out.replaceChildren(errBox(err.message));
+    out.replaceChildren(el("div", { className: "pad" }, errBox(err.message)));
   } finally {
     btn.disabled = false; btn.textContent = "Consultar previsão";
   }
 };
 
 // ±2h: horários com condição + 2h antes e depois de cada um; 24h: todas as horas
-let span = 2, lastHourly = null;
 for (const b of $("span").querySelectorAll("button")) b.onclick = () => {
   span = Number(b.dataset.span);
   for (const o of $("span").querySelectorAll("button")) o.classList.toggle("on", o === b);
   if (lastHourly) $("out").replaceChildren(table(lastHourly));  // reaproveita a última previsão
 };
 
-// h.tags vem do servidor (impact.conditions): chuva, chuva forte, pista molhada
+// h.tags vem do servidor (impact.conditions): chuvisco, chuva leve, chuva, chuva forte, pista molhada
+// chuvisco é só informativo: não conta para o ±2h nem para os voos
+const relevant = tags => tags.filter(t => t[0] !== "drizzle");
 function table(hourly) {
   const keep = span === 24 ? hourly.map(() => true)
-    : hourly.map((_, i) => hourly.slice(Math.max(0, i - span), i + span + 1).some(h => h.tags.length));
+    : hourly.map((_, i) => hourly.slice(Math.max(0, i - span), i + span + 1).some(h => relevant(h.tags).length));
   const rows = [];
   let day = null;
   hourly.forEach((h, i) => {
     if (!keep[i]) return;
     const d = fmtDay(h.time);
     if (d !== day) { day = d; rows.push(dayRow(d, 3)); }
-    rows.push(el("tr", { className: !h.tags.length ? "margin" : h.rain_intensity >= 2.6 ? "rain" : "" },
-      el("td", { textContent: fmtHour(h.time) }),
+    rows.push(el("tr", { className: !relevant(h.tags).length ? "margin" : h.rain_intensity >= 2.6 ? "rain" : "" },
+      el("td", { className: relevant(h.tags).length ? "time" : "", textContent: fmtHour(h.time) }),
       el("td", { className: "tags" }, ...(h.tags.length ? tagList(h.tags) : ["—"])),
       el("td", { textContent: `${num(h.precipitation_probability, 0)} %` })));
   });
-  if (!rows.length) return el("div", { className: "empty", textContent: "Nenhum horário com chuva na previsão." });
-  return grid(["Horário", "Condições", "Prob. precipitação"], rows);
+  if (!rows.length) return emptyBox(ICON.sun, "Nenhum horário com chuva na previsão.");
+  return grid(["Horário", "Condições", "Chance de chuva"], rows, true);
 }
 
 // ---------- malha x previsão das bases ----------
 const postMalha = (path, file) => fetch(path, {
   method: "POST", body: file,
   headers: { "content-type": "application/octet-stream", "x-filename": encodeURIComponent(file.name) },
-}).then(async r => { const j = await r.json(); if (!r.ok) throw new Error(j.detail || r.statusText); return j; });
+});
+const postJson = (path, file) => postMalha(path, file)
+  .then(async r => { const j = await r.json(); if (!r.ok) throw new Error(j.detail || r.statusText); return j; });
 
-$("malha").onchange = async () => {
-  const file = $("malha").files[0], out = $("fout"), check = $("check");
-  $("malha-label").textContent = file ? "Trocar malha" : "Escolher malha";
-  $("malha-name").textContent = file ? file.name : "";
+let malha = null;
+
+// arrastar e soltar
+const drop = $("drop");
+for (const ev of ["dragenter", "dragover"]) drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); });
+for (const ev of ["dragleave", "drop"]) drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("over"); });
+drop.addEventListener("drop", e => { if (e.dataTransfer.files[0]) loadMalha(e.dataTransfer.files[0]); });
+$("malha").onchange = () => { if ($("malha").files[0]) loadMalha($("malha").files[0]); $("malha").value = ""; };
+
+async function loadMalha(file) {
+  malha = file;
+  const out = $("fout"), check = $("check");
+  $("drop").hidden = true;
+  $("filebar").hidden = false;
+  $("malha-name").textContent = file.name;
+  $("malha-size").textContent = fmtSize(file.size);
   check.hidden = true;
-  $("impact").replaceChildren();
-  $("flist").replaceChildren();
-  if (!file) return out.replaceChildren();
-  out.replaceChildren(el("div", { className: "pad meta", textContent: "Lendo a malha…" }));
+  show($("impact"));
+  show($("flist"));
+  show(out, el("div", { className: "loading", textContent: "Lendo a malha…" }));
   try {
-    const p = await postMalha("api/flights/preview", file);
+    const p = await postJson("api/flights/preview", file);
+    if (malha !== file) return;
     const active = p.bases.filter(b => b.dep.length + b.arv.length);
-    const names = l => l.length ? `${l.length}: ${l.join(", ")}` : "—";
-    const kids = [el("div", { className: "pad meta",
-      textContent: `Período analisado: ${fmtUtc(p.window.from)} a ${fmtUtc(p.window.to)} UTC` })];
-    for (const w of p.warnings) kids.push(el("div", { className: "warn", textContent: w }));
-    kids.push(el("div", { className: "bases" }, ...p.bases.map(b => el("div", { className: "base" },
-      el("h3", {}, `${b.name} `, el("small", { textContent: b.icao })),
-      el("dl", {},
-        el("dt", { textContent: "Dep" }), el("dd", { textContent: names(b.dep) }),
-        el("dt", { textContent: "Arv" }), el("dd", { textContent: names(b.arv) }))))));
-    if (!active.length) kids.push(el("div", { className: "empty", textContent: "Nenhum voo da malha parte (Dep) ou chega (Arv) em Belém ou Salvador." }));
-    out.replaceChildren(...kids);
+    const total = p.bases.reduce((s, b) => s + b.dep.length + b.arv.length, 0);
+    const chips = l => l.length ? el("div", { className: "chips" }, ...l.map(f => el("span", { className: "chip", textContent: f })))
+      : el("span", { className: "muted", textContent: "—" });
+    const kids = [step(2, "Voos nas bases", `Período analisado: ${fmtUtc(p.window.from)} a ${fmtUtc(p.window.to)} UTC`)];
+    for (const w of p.warnings) kids.push(el("div", { className: "warn" }, svg(ICON.alert), el("span", { textContent: w })));
+    kids.push(el("div", { className: "bases" }, ...p.bases.map(b => el("section", { className: "card base" },
+      el("div", { className: "card-head" },
+        el("h3", {}, `${b.name} `, el("small", { textContent: b.icao })),
+        el("span", { className: "count", textContent: plural(b.dep.length + b.arv.length, "voo") })),
+      el("div", { className: "legs" },
+        el("div", { className: "leg-row" }, el("div", { className: "lbl" }, el("b", { textContent: "Dep" }), `partida · ${b.dep.length}`), chips(b.dep)),
+        el("div", { className: "leg-row" }, el("div", { className: "lbl" }, el("b", { textContent: "Arv" }), `chegada · ${b.arv.length}`), chips(b.arv)))))));
+    if (!active.length) kids.push(el("section", { className: "card" },
+      emptyBox(ICON.alert, "Nenhum voo da malha parte (Dep) ou chega (Arv) em Belém ou Salvador.")));
+    show(out, ...kids);
 
     const shown = p.flights.slice(0, 200);
-    if (shown.length) $("flist").replaceChildren(el("details", {},
-      el("summary", { textContent: `Ver voos da malha${p.count > shown.length ? ` (primeiros ${shown.length})` : ""}` }),
+    if (shown.length) show($("flist"), el("details", { className: "card" },
+      el("summary", {}, svg(ICON.chevron), `Ver voos da malha${p.count > shown.length ? ` (primeiros ${shown.length})` : ""}`),
       grid(["Voo", "Origem", "Destino", "Partida (UTC)", "Chegada (UTC)", "Aeronave"],
         shown.map(f => el("tr", {}, ...[f.flight, f.dep, f.arr, fmtUtc(f.std), fmtUtc(f.sta), f.aircraft || "—"]
           .map(t => el("td", { textContent: t })))), true)));
 
-    if (active.length) {
-      check.hidden = false;
-      check.textContent = "Verificar chuva";
-    }
+    check.hidden = !total;
   } catch (err) {
-    out.replaceChildren(errBox(err.message));
+    show(out, errBox(err.message));
   }
-};
+}
 
 $("check").onclick = async () => {
-  const file = $("malha").files[0], btn = $("check"), box = $("impact");
+  const file = malha, btn = $("check"), box = $("impact");
   if (!file) return;
-  const label = btn.textContent;
   btn.disabled = true; btn.textContent = "Consultando…";
+  show(box, el("div", { className: "loading", textContent: "Conferindo a previsão das bases…" }));
   try {
-    const r = await postMalha("api/flights/impact", file);
-    box.replaceChildren(...impactView(r));
-    btn.textContent = "Verificar chuva";
+    const r = await postJson("api/flights/impact", file);
+    if (malha !== file) return;
+    show(box, ...impactView(r));
+    box.scrollIntoView({ behavior: "smooth", block: "start" });
   } catch (err) {
-    box.replaceChildren(errBox(err.message));
-    btn.textContent = label;
+    show(box, errBox(err.message));
   } finally {
-    btn.disabled = false;
+    btn.disabled = false; btn.textContent = "Verificar chuva";
   }
 };
 
 async function downloadPdf(btn) {
-  const file = $("malha").files[0];
+  const file = malha;
   if (!file) return;
-  btn.disabled = true; btn.textContent = "Gerando…";
+  const label = btn.lastChild;
+  btn.disabled = true; label.textContent = "Gerando…";
   try {
-    const r = await fetch("api/flights/report.pdf", { method: "POST", body: file,
-      headers: { "content-type": "application/octet-stream", "x-filename": encodeURIComponent(file.name) } });
+    const r = await postMalha("api/flights/report.pdf", file);
     if (!r.ok) throw new Error((await r.json()).detail || r.statusText);
     const name = (r.headers.get("content-disposition") || "").match(/filename="(.+)"/)?.[1] || "voos-impactados.pdf";
     const url = URL.createObjectURL(await r.blob());
@@ -285,32 +439,45 @@ async function downloadPdf(btn) {
   } catch (err) {
     alert("Erro ao gerar o PDF: " + err.message);
   } finally {
-    btn.disabled = false; btn.textContent = "Baixar PDF";
+    btn.disabled = false; label.textContent = "Baixar PDF";
   }
 }
 
 function impactView(r) {
   const n = r.impacted.length;
-  const pdf = el("button", { className: "ghost", textContent: "Baixar PDF", onclick: () => downloadPdf(pdf) });
-  const info = el("div", { className: "pad row" }, el("div", { className: "meta" },
-    el("b", { textContent: `${plural(n, "voo")} impactado${n === 1 ? "" : "s"}` }),
-    r.bases.map(b => b.name).join(" e ")), pdf);
-  if (!n) return [info, el("div", { className: "empty", textContent: "Nenhum voo parte ou chega nas bases em horário com chuva ou pista molhada." })];
-  const rows = [];
-  let day = null;
-  for (const x of r.impacted) {
-    const d = fmtDay(x.time);
-    if (d !== day) { day = d; rows.push(dayRow(d, 6)); }
-    rows.push(el("tr", { className: x.rain_intensity >= 2.6 ? "rain" : "" },
-      el("td", { textContent: fmtHour(x.time) }),
-      el("td", { textContent: x.flight }),
-      el("td", { className: "sub" }, el("b", { textContent: x.airport + " " }),
-        el("span", { className: "tag leg", textContent: x.leg }), x.leg === "Dep" ? `→ ${x.other}` : `← ${x.other}`),
-      el("td", { className: "tags" }, ...tagList(x.tags)),
-      el("td", { className: "sub", textContent: x.hours.map(fmtHour).join(", ") }),
-      el("td", { textContent: `${num(x.precipitation_probability, 0)} %` })));
+  const per = Object.fromEntries(r.bases.map(b => [b.icao, 0]));
+  for (const x of r.impacted) per[x.airport] = (per[x.airport] || 0) + 1;
+  const tiles = el("div", { className: "tiles" },
+    el("div", { className: "tile main" }, el("div", { className: "k", textContent: "Voos impactados" }),
+      el("div", { className: "v" }, String(n), el("small", { textContent: n === 1 ? "voo" : "voos" }))),
+    ...r.bases.map(b => el("div", { className: "tile" }, el("div", { className: "k", textContent: `${b.name} · ${b.icao}` }),
+      el("div", { className: "v" }, String(per[b.icao] || 0), el("small", { textContent: (per[b.icao] || 0) === 1 ? "voo" : "voos" })))));
+
+  const pdf = el("button", { className: "ghost", onclick: () => downloadPdf(pdf) }, svg(ICON.pdf), el("span", { textContent: "Baixar PDF" }));
+  const head = el("div", { className: "card-head" },
+    el("div", {}, el("h3", { textContent: "Voos afetados" }),
+      el("p", { textContent: r.bases.map(b => b.name).join(" e ") })), pdf);
+
+  let body;
+  if (!n) body = emptyBox(ICON.sun, "Nenhum voo parte ou chega nas bases em horário com chuva ou pista molhada.");
+  else {
+    const rows = [];
+    let day = null;
+    for (const x of r.impacted) {
+      const d = fmtDay(x.time);
+      if (d !== day) { day = d; rows.push(dayRow(d, 6)); }
+      rows.push(el("tr", { className: x.rain_intensity >= 2.6 ? "rain" : "" },
+        el("td", { className: "time", textContent: fmtHour(x.time) }),
+        el("td", { className: "flt", textContent: x.flight }),
+        el("td", { className: "sub" }, el("b", { textContent: x.airport }),
+          el("span", { className: "tag leg", textContent: x.leg }), x.leg === "Dep" ? `→ ${x.other}` : `← ${x.other}`),
+        el("td", { className: "tags" }, ...tagList(x.tags)),
+        el("td", { className: "sub", textContent: x.hours.map(fmtHour).join(", ") }),
+        el("td", { textContent: `${num(x.precipitation_probability, 0)} %` })));
+    }
+    body = grid(["Horário", "Voo", "Base · Dep / Arv", "Condições", "Chuva às", "Chance de chuva"], rows);
   }
-  return [info, grid(["Horário", "Voo", "Base · Dep / Arv", "Condições", "Chuva às", "Prob. precipitação"], rows)];
+  return [step(3, "Resultado"), tiles, el("section", { className: "card" }, head, body)];
 }
 </script>
 </body>
